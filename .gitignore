@@ -1,0 +1,33 @@
+# VS Code
+.vscode/
+
+# LaTeX build files
+*.aux
+*.bbl
+*.blg
+*.brf
+*.dvi
+*.fdb_latexmk
+*.fls
+*.ilg
+*.ind
+*.lof
+*.log
+*.lot
+*.out
+*.toc
+*.synctex.gz
+*.run.xml
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*.synctex.gz
+*~
+
+# Directory for LaTeX editor temporary files (optional, if your editor uses it)
+.texpadtmp/
+
+# Build directory (optional, if using an external build folder)
+build/
