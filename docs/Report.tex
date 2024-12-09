@@ -278,32 +278,32 @@ Instructions that do not fit into the R-Type, I-Type, or J-Type categories.
     \texttt{ADD Rdst, Rsrc1, Rsrc2} & \texttt{ALUOp = ADD, RegWrite = 1} \\ \hline
     \texttt{SUB Rdst, Rsrc1, Rsrc2} & \texttt{ALUOp = SUB, RegWrite = 1} \\ \hline
     \texttt{AND Rdst, Rsrc1, Rsrc2} & \texttt{ALUOp = AND, RegWrite = 1} \\ \hline
-    \texttt{IADD Rdst, Rsrc1, Imm} & \texttt{ALUOp = ADD, ALUSrc = Imm, RegWrite = 1} \\ \hline
-    \texttt{LDM Rdst, Imm} & \texttt{MemRead = 1, MemToReg = 1, RegWrite = 1} \\ \hline
-    \texttt{LDD Rdst, offset(Rsrc1)} & \texttt{MemRead = 1, MemToReg = 1, RegWrite = 1} \\ \hline
-    \texttt{STD Rsrc1, offset(Rsrc2)} & \texttt{MemWrite = 1} \\ \hline
-    \texttt{JZ Rsrc1} & \texttt{Branch = 1, Zero = 1} \\ \hline
-    \texttt{JN Rsrc1} & \texttt{Branch = 1, Negative = 1} \\ \hline
-    \texttt{JC Rsrc1} & \texttt{Branch = 1, Carry = 1} \\ \hline
-    \texttt{JMP Rsrc1} & \texttt{Jump = 1} \\ \hline
-    \texttt{CALL Rsrc1} & \texttt{Jump = 1, RegWrite = 1, Link = 1} \\ \hline
-    \texttt{RET} & \texttt{Jump = 1, RegRead = 1} \\ \hline
-    \texttt{RTI} & \texttt{Jump = 1, RegRead = 1} \\ \hline
-    \texttt{INT index} & \texttt{Interrupt = 1} \\ \hline
-    \texttt{NOP} & \texttt{No operation} \\ \hline
-    \texttt{HLT} & \texttt{Halt = 1} \\ \hline
-    \texttt{SETC} & \texttt{SetCarry = 1} \\ \hline
-    \texttt{OUT Rsrc1} & \texttt{Output = 1} \\ \hline
-    \texttt{IN Rdst} & \texttt{Input = 1, RegWrite = 1} \\ \hline
-    \texttt{PUSH Rsrc1} & \texttt{StackWrite = 1} \\ \hline
-    \texttt{POP Rdst} & \texttt{StackRead = 1, RegWrite = 1} \\ \hline
+    \texttt{IADD Rdst, Rsrc1, Imm} & \texttt{ALUOp = ADD, ALUSrc2 = 1[Imm], RegWrite = 1, prevOp = 1} \\ \hline
+    \texttt{LDM Rdst, Imm} & \texttt{MemRead = 1, ALUSrc2 = 1[Imm]} \\ \texttt{} & \texttt{MemToReg = 1, RegWrite = 1, prevOp = 1} \\ \hline
+    \texttt{LDD Rdst, offset(Rsrc1)} & \texttt{MemRead = 1, ALUSrc2 = 1[Imm]} \\ \texttt{} & \texttt{MemToReg = 1, RegWrite = 1, prevOp = 1} \\ \hline
+    \texttt{STD Rsrc1, offset(Rsrc2)} & \texttt{MemWrite = 1, ALUSrc2 = 1[Imm], prevOp = 1} \\ \hline
+    \texttt{JZ Rsrc1} & \texttt{JZ = 1} \\ \hline
+    \texttt{JN Rsrc1} & \texttt{JN = 1} \\ \hline
+    \texttt{JC Rsrc1} & \texttt{JC = 1} \\ \hline
+    \texttt{JMP Rsrc1} & \texttt{JMP = 1} \\ \hline
+    \texttt{CALL Rsrc1} & \texttt{CALL = 1, RegWrite = 1, SP = SP - 1} \\ \hline
+    \texttt{RET} & \texttt{JMP = 1, SP = SP + 1} \\ \hline
+    \texttt{RTI} & \texttt{JMP = 1, SP = SP + 1} \\ \hline
+    \texttt{INT index} & \texttt{INT = 1} \\ \hline
+    \texttt{NOP} & \texttt{NOP = 1} \\ \hline
+    \texttt{HLT} & \texttt{-} \\ \hline
+    \texttt{SETC} & \texttt{CF = 1} \\ \hline
+    \texttt{OUT Rsrc1} & \texttt{OUTPORT = 1} \\ \hline
+    \texttt{IN Rdst} & \texttt{INPORT = 1, RegWrite = 1} \\ \hline
+    \texttt{PUSH Rsrc1} & \texttt{SP = SP - 1} \\ \hline
+    \texttt{POP Rdst} & \texttt{RegWrite = 1, SP = SP + 1} \\ \hline
     \end{tabular}
     \caption{Control Unit Signals for Each Instruction}
     \label{tab:cu-signals}
 \end{table}
 
 
-\section*{Pieline Stages Design}
+\chapter{Pieline Stages Design}
 The processor pipeline consists of five stages:
 \textbf{IF} (Instruction Fetch),
 \textbf{ID} (Instruction Decode),
@@ -312,7 +312,7 @@ The processor pipeline consists of five stages:
 \textbf{WB} (Write Back).
 Each stage is responsible for specific tasks in the instruction execution process.
 
-\subsection*{IF (Instruction Fetch)}
+\section*{IF (Instruction Fetch)}
 \begin{minipage}{0.6\textwidth}
 \begin{itemize}
     \item Fetch the instruction from memory using the Program Counter (PC).
@@ -329,7 +329,7 @@ Each stage is responsible for specific tasks in the instruction execution proces
 \end{minipage}
 
 
-\subsection*{ID (Instruction Decode)}
+\section*{ID (Instruction Decode)}
 \begin{minipage}{0.6\textwidth}
 \begin{itemize}
     \item Decode the instruction opcode and extract the necessary fields.
@@ -346,7 +346,7 @@ Each stage is responsible for specific tasks in the instruction execution proces
 \end{center}
 \end{minipage}
 
-\subsection*{EX (Execution Stage)}
+\section*{EX (Execution Stage)}
 \begin{minipage}{0.6\textwidth}
 \begin{itemize}
     \item Select ALU inputs through multiplexers based on control signals (\texttt{ALUsrc1} and \texttt{ALUsrc2}).
@@ -366,7 +366,7 @@ Each stage is responsible for specific tasks in the instruction execution proces
 \end{center}
 \end{minipage}
 
-\subsection*{MEM (Memory Access)}
+\section*{MEM (Memory Access)}
 \begin{minipage}{0.6\textwidth}
 \begin{itemize}
     \item Access memory to read or write data based on the instruction type.
@@ -383,7 +383,7 @@ Each stage is responsible for specific tasks in the instruction execution proces
 \end{center}
 \end{minipage}
 
-\subsection*{WB (Write Back)}
+\section*{WB (Write Back)}
 \begin{minipage}{0.6\textwidth}
 \begin{itemize}
     \item Update the register file with the new value if the instruction is a register operation.
@@ -450,6 +450,7 @@ Consider the following sequence of instructions:
 \begin{verbatim}
     LOOP:   SUB R1, R1, #1          IF     ID     EX     MEM     WB
             JNZ LOOP                -      IF     ID     EX      MEM     WB
+            IN Rsrc2   --flush      -      -      IF
 \end{verbatim}
 In this example, the branch instruction `JNZ LOOP` jumps backward to the label `LOOP`. Using BTFNT, the pipeline predicts that the branch will be taken.
 
