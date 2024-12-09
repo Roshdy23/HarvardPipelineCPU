@@ -302,15 +302,8 @@ Instructions that do not fit into the R-Type, I-Type, or J-Type categories.
     \label{tab:cu-signals}
 \end{table}
 
-
-\chapter{Pieline Stages Design}
-The processor pipeline consists of five stages:
-\textbf{IF} (Instruction Fetch),
-\textbf{ID} (Instruction Decode),
-\textbf{EX} (Execution),
-\textbf{MEM} (Memory Access), and
-\textbf{WB} (Write Back).
-Each stage is responsible for specific tasks in the instruction execution process.
+\chapter{Pipeline Stages Design}
+The processor pipeline is composed of five distinct stages: \textbf{IF} (Instruction Fetch), \textbf{ID} (Instruction Decode), \textbf{EX} (Execution), \textbf{MEM} (Memory Access), and \textbf{WB} (Write Back). Each stage is responsible for specific tasks in the instruction execution process.
 
 \section*{IF (Instruction Fetch)}
 \begin{minipage}{0.6\textwidth}
@@ -318,35 +311,36 @@ Each stage is responsible for specific tasks in the instruction execution proces
     \item Fetch the instruction from memory using the Program Counter (PC).
     \item Increment the PC to point to the next instruction.
     \item Store the fetched instruction in the Instruction Register (IR).
-    \item In case of a branch or jump instruction, update the PC accordingly.
-    \item In case of a `Halting' instruction, stop fetching new instructions by stalling the PC counter value.
+    \item Update the PC accordingly in case of a branch or jump instruction.
+    \item Stall the PC counter value in case of a halting instruction to stop fetching new instructions.
 \end{itemize}
 \end{minipage}
+\hspace{1cm}
 \begin{minipage}{0.35\textwidth}
 \begin{center}
     \includegraphics[width=\textwidth]{./assets/IF.png}
 \end{center}
 \end{minipage}
 
-
 \section*{ID (Instruction Decode)}
 \begin{minipage}{0.6\textwidth}
 \begin{itemize}
     \item Decode the instruction opcode and extract the necessary fields.
-    \item Read the register file to get the values of the source registers.
-    \item Determine the type of instruction and the required control signals.
+    \item Read the register file to obtain the values of the source registers.
+    \item Determine the type of instruction and generate the required control signals.
     \item Calculate the effective address for memory operations if applicable.
     \item Forward register values and immediate operands to the next stage (EX).
     \item Stall the pipeline if a data hazard is detected and cannot be resolved with forwarding.
 \end{itemize}
 \end{minipage}
+\hspace{1cm}
 \begin{minipage}{0.35\textwidth}
 \begin{center}
     \includegraphics[width=\textwidth]{./assets/ID.png}
 \end{center}
 \end{minipage}
 
-\section*{EX (Execution Stage)}
+\section*{EX (Execution)}
 \begin{minipage}{0.6\textwidth}
 \begin{itemize}
     \item Select ALU inputs through multiplexers based on control signals (\texttt{ALUsrc1} and \texttt{ALUsrc2}).
@@ -360,6 +354,7 @@ Each stage is responsible for specific tasks in the instruction execution proces
     \item Generate control signals to update the Program Counter (PC) if a branch is taken.
 \end{itemize}
 \end{minipage}
+\hspace{1cm}
 \begin{minipage}{0.35\textwidth}
 \begin{center}
     \includegraphics[width=\textwidth]{./assets/EX.png}
@@ -372,11 +367,12 @@ Each stage is responsible for specific tasks in the instruction execution proces
     \item Access memory to read or write data based on the instruction type.
     \item Forward the memory read data to the Write Back (WB) stage.
     \item Stall the pipeline if a data hazard is detected and cannot be resolved with data forwarding.
-    \item Stack control unit handles stack operations (PUSH, POP).
-    \item Control unit generates signals to enable memory read/write operations.
-    \item If the instruction doesn't involve memory access, forward the ALU result to the WB stage.
+    \item Handle stack operations (PUSH, POP) through the stack control unit.
+    \item Generate signals to enable memory read/write operations.
+    \item Forward the ALU result to the WB stage if the instruction does not involve memory access.
 \end{itemize}
 \end{minipage}
+\hspace{1cm}
 \begin{minipage}{0.35\textwidth}
 \begin{center}
     \includegraphics[width=\textwidth]{./assets/MEM.png}
@@ -389,11 +385,12 @@ Each stage is responsible for specific tasks in the instruction execution proces
     \item Update the register file with the new value if the instruction is a register operation.
     \item Update the Program Counter (PC) with the branch target address if a branch is taken.
     \item Stall the pipeline if a data hazard is detected and cannot be resolved with data forwarding.
-    \item If the instruction is a jump or call, update the PC with the target address.
-    \item If the instruction is a return, update the PC with the return address.
-    \item If the instruction is a halt, stop the processor.
+    \item Update the PC with the target address if the instruction is a jump or call.
+    \item Update the PC with the return address if the instruction is a return.
+    \item Halt the processor if the instruction is a halt.
 \end{itemize}
 \end{minipage}
+\hspace{1cm}
 \begin{minipage}{0.35\textwidth}
 \begin{center}
     \includegraphics[width=\textwidth]{./assets/WB.png}
@@ -474,10 +471,31 @@ If the prediction is incorrect, the pipeline is flushed, and the correct instruc
 \section*{Pipeline Hazard Detection Unit}
 A hazard detection unit is implemented to identify hazards and take appropriate actions. It monitors the pipeline stages and generates control signals to handle hazards.
 
+\begin{center}
+\begin{minipage}{0.75\textwidth}
+\includegraphics[width=\textwidth]{./assets/HDU.png}
+\end{minipage}
+\end{center}
+
 \begin{itemize}
     \item \textbf{Structural Hazard Detection:} Ensures that the pipeline has enough resources to handle multiple instructions simultaneously by duplicating resources or scheduling instructions to avoid conflicts.
     \item \textbf{Data Hazard Detection:} Manages data hazards using data forwarding to pass results directly to dependent instructions or pipeline stalling by inserting no-operation (NOP) instructions until the required data is available.
     \item \textbf{Control Hazard Detection:} Uses branch prediction techniques, specifically "Backward Taken, Forward Not Taken" (BTFNT), to predict branch directions and manage pipeline flushing if the prediction is incorrect.
 \end{itemize}
 
+\chapter{Exception Handling}
+
+\section*{Exception Types}
+Exceptions are unexpected events that occur during program execution, requiring special handling to ensure the correct operation of the processor. The following exception types are supported by the processor: \\
+
+\begin{itemize}
+    \item \textbf{Stack Underflow:} Occurs when the stack pointer exceeds its limits.
+    \item \textbf{Invalid Memory Access:} Indicates an attempt to access an invalid memory location.
+\end{itemize}
+
+\begin{center}
+    \begin{minipage}{0.75\textwidth}
+    \includegraphics[width=\textwidth]{./assets/EC.png}
+    \end{minipage}
+    \end{center}
 \end{document}
