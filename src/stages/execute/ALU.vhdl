@@ -106,6 +106,7 @@ uut_sub16: Sub16
               result_add when Sel = "010" else
               result_inc when Sel = "011" else
               result_sub when Sel = "100" else
+              A           when Sel = "101" else 
               (others => '0');
 
     CF <= carry_add when Sel = "010" else
