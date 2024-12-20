@@ -10,6 +10,16 @@ end testbench_Alu_Ops;
 architecture Behavioral of testbench_Alu_Ops is
 
     -- Component declarations
+
+    component Sub16 
+    port (
+        A : in std_logic_vector(15 downto 0);
+        B : in std_logic_vector(15 downto 0);
+        Result : out std_logic_vector(15 downto 0);
+        NF : out std_logic
+    );
+    end component;
+   
     component and16
         port(
             A, B : in  std_logic_vector(15 downto 0);
@@ -42,8 +52,8 @@ architecture Behavioral of testbench_Alu_Ops is
 
     -- Signals for testing
     signal a1, b1 : std_logic_vector(15 downto 0);
-    signal result_and, result_not, result_add, result_inc : std_logic_vector(15 downto 0);
-    signal carry_add, carry_inc : std_logic;
+    signal result_and, result_not, result_add, result_inc, result_sub : std_logic_vector(15 downto 0);
+    signal carry_add, carry_inc, neg_sub : std_logic;
 
 begin
     -- Instantiate and16
@@ -78,6 +88,14 @@ begin
             CF => carry_inc
         );
 
+    uut_sub16: Sub16
+        port map(
+            A => a1,
+            B => b1,
+            Result => result_sub,
+            NF => neg_sub
+        );
+
     -- Test process
     process
     begin
@@ -95,6 +113,8 @@ begin
             report "ADD16 test failed" severity error;
         assert (unsigned(result_inc) = unsigned(a1) + 1) and (carry_inc = '0')
             report "INC16 test failed" severity error;
+        assert (unsigned(result_sub) = unsigned(a1) - unsigned(b1)) and (neg_sub = '1')
+            report "SUB16 test failed" severity error;
 
         wait;
     end process;
