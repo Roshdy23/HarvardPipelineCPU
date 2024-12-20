@@ -5,11 +5,11 @@ entity Special_Mux is
     Port (
         forword_unit_sel: in STD_LOGIC_VECTOR(0 to 1);
         ctrl_unit_sel : in STD_LOGIC;
-        result : in STD_LOGIC_VECTOR(0 to 15);
-        write_back : in STD_LOGIC_VECTOR(0 to 15);
-        input1 : in STD_LOGIC_VECTOR(0 to 15);
-        input2 : in STD_LOGIC_VECTOR(0 to 15);
-        outp : out STD_LOGIC_VECTOR(0 to 15)
+        result : in STD_LOGIC_VECTOR(15 downto 0);
+        write_back : in STD_LOGIC_VECTOR(15 downto 0);
+        input1 : in STD_LOGIC_VECTOR(15 downto 0);
+        input2 : in STD_LOGIC_VECTOR(15 downto 0);
+        outp : out STD_LOGIC_VECTOR(15 downto 0)
     );
 end Special_Mux;
 
