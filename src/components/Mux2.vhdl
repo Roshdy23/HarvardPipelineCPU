@@ -1,18 +1,17 @@
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
- 
-  Entity Mux2 is
-    port(A,B :in std_logic_vector(2 downto 0);
-         S   :in std_logic;
-         Z   :out std_logic_vector(2 downto 0)
-         );
-  End Mux2;
- 
-Architecture Arch_Mux2 of Mux2 is 
-   begin
-       Z <=   A when s='0'
-         else B;
- End Arch_Mux2;
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
 
+ENTITY Mux2 IS
+    PORT (
+        a : IN STD_LOGIC;
+        b : IN STD_LOGIC;
+        sel : IN STD_LOGIC;
+        y : OUT STD_LOGIC
+    );
+END Mux2;
 
-
+ARCHITECTURE Behavioral OF Mux2 IS
+BEGIN
+    y <= a WHEN sel = '0' ELSE
+        b;
+END Behavioral;
