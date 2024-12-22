@@ -15,7 +15,6 @@ entity control_unit is
         call            : out std_logic;
         ret             : out std_logic;
         int             : out std_logic;
-        rtl             : out std_logic;
         nop             : out std_logic;
         branch_predict  : out std_logic;
         alu_control     : out std_logic_vector(2 downto 0);
@@ -34,7 +33,8 @@ entity control_unit is
         index_out       : out std_logic;
         stack_op        : out std_logic;
         push            : out std_logic;
-        pop             : out std_logic
+        pop             : out std_logic;
+        keep_flags      : out std_logic
     );
 end control_unit;
 
@@ -59,7 +59,6 @@ begin
         call            <= '0';
         ret             <= '0';
         int             <= '0';
-        rtl             <= '0';
         nop             <= '0';
         branch_predict  <= '0';
         alu_control     <= ALU_NOP;
@@ -77,6 +76,7 @@ begin
         mem_wb_wb       <= '0';
         index_out       <= '0';
         stack_op        <= '0';
+        keep_flags      <= '0';
 
         -- Previous Op Code  indicates that the current instruction is a 16-bit Immediate
         if prev_op = '1' then
@@ -130,11 +130,13 @@ begin
                             mem_read    <= '1';
                             mem_to_reg  <= '1';
                             write_en    <= '1';
+                            keep_flags  <= '1';
                         when "011" =>                 -- STD Rsrc1, offset(Rsrc2)
                             alu_control <= ALU_ADD;
                             alu_src1    <= READ_DATA_2;       -- Read Data 1
                             alu_src2    <= READ_IMMEDIATE;    -- Read Data 2
                             mem_write   <= '1';
+                            keep_flags  <= '1';
                         when others =>
                             nop <= '1';
                     end case;
