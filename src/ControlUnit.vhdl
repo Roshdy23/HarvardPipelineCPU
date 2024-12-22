@@ -3,11 +3,12 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_ARITH.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
-entity control_unit is
+entity ControlUnit is
     Port (
-        opcode          : in  std_logic_vector(1 downto 0); -- Opcode
-        func_code       : in  std_logic_vector(2 downto 0); -- Function
-        index_in        : in  std_logic_vector(2 downto 0); -- Index
+        rst             : in  std_logic;                        -- Reset
+        opcode          : in  std_logic_vector(1 downto 0);     -- Opcode
+        func_code       : in  std_logic_vector(2 downto 0);     -- Function
+        index_in        : in  std_logic_vector(2 downto 0);     -- Index
         jz              : out std_logic;
         jn              : out std_logic;
         jc              : out std_logic;
@@ -36,9 +37,9 @@ entity control_unit is
         pop             : out std_logic;
         keep_flags      : out std_logic
     );
-end control_unit;
+end ControlUnit;
 
-architecture Behavioral of control_unit is
+architecture Behavioral of ControlUnit is
     constant ALU_AND : std_logic_vector(2 downto 0) := "000";
     constant ALU_NOT : std_logic_vector(2 downto 0) := "001";
     constant ALU_ADD : std_logic_vector(2 downto 0) := "010";
@@ -49,8 +50,43 @@ architecture Behavioral of control_unit is
     constant READ_DATA_2 : std_logic := '0';
     constant READ_IMMEDIATE : std_logic := '1';
 begin
+    process(rst)
+    begin
+        if rst = '0' then
+            jz              <= '0';
+            jn              <= '0';
+            jc              <= '0';
+            jmp             <= '0';
+            call            <= '0';
+            ret             <= '0';
+            int             <= '0';
+            nop             <= '0';
+            branch_predict  <= '0';
+            alu_control     <= ALU_NOP;
+            prev_op         <= '0';
+            out_en          <= '0';
+            in_en           <= '0';
+            mem_read        <= '0';
+            mem_write       <= '0';
+            mem_to_reg      <= '0';
+            write_en        <= '0';
+            rti             <= '0';
+            alu_src1        <= '0';
+            alu_src2        <= '0';
+            ie_mem_wb       <= '0';
+            mem_wb_wb       <= '0';
+            index_out       <= '0';
+            stack_op        <= '0';
+            push            <= '0';
+            pop             <= '0';
+            keep_flags      <= '0';
+        end if;
+    end process;
+    begin
+
     process(opcode, func_code, index_in)
     begin
+        if rst = '0' then return; end if;
         -- Default values
         jz              <= '0';
         jn              <= '0';
@@ -162,16 +198,20 @@ begin
                             alu_src1 <= READ_DATA_1;
                             call <= '1';
                             stack_op <= '1';
+                            push <= '1';
                         when "101" =>                 -- RET
                             ret <= '1';
                             stack_op <= '1';
+                            pop <= '1';
                         when "110" =>                 -- RTI
                             rti <= '1';
                             stack_op <= '1';
+                            pop <= '1';
                         when "111" =>                 -- INT index
                             index_out <= index_in(1);
                             int <= '1';
                             stack_op <= '1';
+                            push <= '1';
                         when others =>
                             nop <= '1';
                     end case;
