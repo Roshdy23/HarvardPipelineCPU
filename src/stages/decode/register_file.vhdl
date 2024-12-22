@@ -10,14 +10,14 @@ entity register_file is
         read_reg1 : in STD_LOGIC_VECTOR(2 downto 0);        -- Read register 1
         read_reg2 : in STD_LOGIC_VECTOR(2 downto 0);        -- Read register 2
         write_reg : in STD_LOGIC_VECTOR(2 downto 0);        -- Write register
-        write_data : in STD_LOGIC_VECTOR(31 downto 0);      -- Write data
-        read_data1 : out STD_LOGIC_VECTOR(31 downto 0);     -- Read data 1
-        read_data2 : out STD_LOGIC_VECTOR(31 downto 0)      -- Read data 2
+        write_data : in STD_LOGIC_VECTOR(15 downto 0);      -- Write data
+        read_data1 : out STD_LOGIC_VECTOR(15 downto 0);     -- Read data 1
+        read_data2 : out STD_LOGIC_VECTOR(15 downto 0)      -- Read data 2
     );
 end register_file;
 
 architecture Behavioral of register_file is
-    type reg_array is array (0 to 7) of STD_LOGIC_VECTOR(31 downto 0);
+    type reg_array is array (0 to 7) of STD_LOGIC_VECTOR(15 downto 0);
     signal registers : reg_array := (others => (others => '0'));
 begin
 
