@@ -81,6 +81,16 @@ begin
         wait for 10 ns;              -- Wait for falling edge
         assert read_data2 = X"87654321" report "Test 2 failed: Read data does not match write data" severity error;
 
+        -- Test 3: Write to register 1 without write enable
+        write_reg <= "001";          -- Select register 1
+        write_data <= X"87654321";   -- Data to write
+        we <= '0';                   -- Disable write
+        wait for 10 ns;              -- Wait for rising edge
+
+        read_reg1 <= "001";          -- Read register 1
+        wait for 10 ns;              -- Wait for falling edge
+        assert read_data1 /= X"87654321" report "Test 3 failed: Data should not have been written" severity error;
+
         wait;
     end process;
 
