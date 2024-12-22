@@ -81,6 +81,7 @@ begin
         -- Previous Op Code  indicates that the current instruction is a 16-bit Immediate
         if prev_op = '1' then
             prev_op <= '0';
+            nop <= '0';
         else
             -- Control signals
             case opcode is
@@ -138,6 +139,7 @@ begin
                             nop <= '1';
                     end case;
                     prev_op <= '1';
+                    nop <= '1';                       -- Stall in the ID stage
                 
                 -- J-Type Instructions
                 when "10" =>
