@@ -3,10 +3,10 @@ USE IEEE.STD_LOGIC_1164.ALL;
 
 ENTITY Mux2 IS
     PORT (
-        a : IN STD_LOGIC;
-        b : IN STD_LOGIC;
+        a   : IN STD_LOGIC;
+        b   : IN STD_LOGIC;
         sel : IN STD_LOGIC;
-        y : OUT STD_LOGIC
+        y   : OUT STD_LOGIC
     );
 END Mux2;
 

@@ -7,7 +7,7 @@ ENTITY OrN IS
     );
     PORT (
         inputs : IN STD_LOGIC_VECTOR(W - 1 DOWNTO 0); -- Give it input as (a & b & c)
-        y : OUT STD_LOGIC
+        y      : OUT STD_LOGIC
     );
 END OrN;
 
