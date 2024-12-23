@@ -15,7 +15,7 @@ AND R0, R1, R2    ; R0 = R1 AND R2
 ; Load and Store Instructions
 IADD R0,R1,#5   ; R0 = R1 + 5
 LDM R0, #10       ; R0 = Memory[10]
-LDD R0,3(R1)        ; R0 = Memory[R1]
+LDD R7,3 ( R1 )        ; R0 = Memory[R1]
 STD R1,10(R2)        ; Memory[R2] = R1
 
 ; Set origin to address 0x0020

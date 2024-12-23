@@ -1,4 +1,5 @@
 import os
+import re
 
 R_TYPE = {'NOT': 2, 'INC': 2, 'MOV': 2, 'ADD': 3, 'SUB': 3, 'AND': 3}
 I_TYPE = {'IADD': 3, 'LDM': 2, 'LDD': 2, 'STD': 2}
@@ -95,6 +96,8 @@ def write_instructions_to_bin_file(program_instructions, output_file_name):
         if instruction == '':
             continue
         instruction = instruction.replace(',', ' ')  # Replace commas with spaces
+        instruction = re.sub(r'\s*\(\s*', '(', instruction)  # Remove spaces around '('
+        instruction = re.sub(r'\s*\)\s*', ')', instruction)  # Remove spaces around ')'
         instruction = instruction.split()  # Split instruction into token
         opcode, funct, number_of_operands = get_opcode(instruction[0])
         if opcode == 'ORG':
