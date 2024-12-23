@@ -7,8 +7,8 @@ ENTITY StackControlUnit IS
         rst             : IN STD_LOGIC;                      -- Reset
         push            : IN STD_LOGIC;                      -- Push
         pop             : IN STD_LOGIC;                      -- Pop
-        sp              : OUT STD_LOGIC_VECTOR(15 DOWNTO 0); -- Stack Pointer
-        empty_exception : OUT STD_LOGIC;                     -- Empty Exception
+        sp_out          : OUT STD_LOGIC_VECTOR(15 DOWNTO 0); -- Output Stack Pointer
+        empty_exception : OUT STD_LOGIC                      -- Empty Exception
     );
 END StackControlUnit;
 
@@ -20,6 +20,7 @@ BEGIN
     BEGIN
         IF rst = '0' THEN
             sp_reg          <= STD_LOGIC_VECTOR(to_unsigned(4095, 16));
+            next_sp         <= STD_LOGIC_VECTOR(to_unsigned(4095, 16));
             empty_exception <= '0';
         ELSIF push = '1' THEN
             next_sp         <= STD_LOGIC_VECTOR(unsigned(sp_reg) - 1);
@@ -37,5 +38,14 @@ BEGIN
         END IF;
     END PROCESS;
 
-    sp <= next_sp;
+    imux2 : ENTITY work.MuxN(Behavioral)
+        GENERIC MAP(
+            W => 16
+        )
+        PORT MAP(
+            a   => sp_reg,
+            b   => next_sp,
+            sel => pop,
+            y   => sp_out
+        );
 END Behavioral;
