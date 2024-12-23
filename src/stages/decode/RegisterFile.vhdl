@@ -21,38 +21,18 @@ ARCHITECTURE Behavioral OF RegisterFile IS
     SIGNAL registers : reg_array := (OTHERS => (OTHERS => '0'));
 BEGIN
 
-    -- Reset
-    PROCESS (rst)
+    PROCESS (rst, clk, read_reg1, read_reg2, registers, we)
     BEGIN
-        IF rst = '0' THEN
-            registers <= (OTHERS => (OTHERS => '0'));
-        END IF;
-    END PROCESS;
-
-    -- Read data
-    PROCESS (read_reg1, read_reg2, registers)
-    BEGIN
-        read_data1 <= registers(to_integer(unsigned(read_reg1)));
-        read_data2 <= registers(to_integer(unsigned(read_reg2)));
-    END PROCESS;
-
-    -- Write operation: In the first half of the clock cycle
-    PROCESS (clk)
-    BEGIN
-        IF rst = '1' AND rising_edge(clk) THEN
+        IF rst = '0' THEN -- Reset: Set all registers to 0
+            read_data1 <= (OTHERS => '0');
+            read_data2 <= (OTHERS => '0');
+        ELSIF falling_edge(clk) THEN -- Write operation: In the first half of the clock cycle
             IF we = '1' THEN
                 registers(to_integer(unsigned(write_reg))) <= write_data;
             END IF;
-        END IF;
-    END PROCESS;
-
-    -- Read operation: In the second half of the clock cycle
-    PROCESS (clk)
-    BEGIN
-        IF rst = '1' AND falling_edge(clk) THEN
+        ELSIF rising_edge(clk) THEN -- Read operation: In the second half of the clock cycle
             read_data1 <= registers(to_integer(unsigned(read_reg1)));
             read_data2 <= registers(to_integer(unsigned(read_reg2)));
         END IF;
     END PROCESS;
-
 END Behavioral;

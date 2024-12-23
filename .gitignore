@@ -31,3 +31,11 @@
 
 # Build directory (optional, if using an external build folder)
 build/
+work/
+*.mti
+*.mpf
+*.wlf
+*.xml
+*.iml
+*.vstf
+.idea/
