@@ -1,15 +1,15 @@
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
 
-entity And2 is
-    Port (
-        A : in STD_LOGIC;
-        B : in STD_LOGIC;
-        Y : out STD_LOGIC
+ENTITY And2 IS
+    PORT (
+        a : IN STD_LOGIC;
+        b : IN STD_LOGIC;
+        y : OUT STD_LOGIC
     );
-end And2;
+END And2;
 
-architecture Behavioral of And2 is
-begin
-    Y <= A and B;
-end Behavioral;
+ARCHITECTURE Behavioral OF And2 IS
+BEGIN
+    y <= a AND b;
+END Behavioral;

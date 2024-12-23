@@ -17,7 +17,7 @@ architecture Behavioral of tb_register_file is
     signal read_data1  : std_logic_vector(31 downto 0);                     -- Read data 1
     signal read_data2  : std_logic_vector(31 downto 0);                     -- Read data 2
 
-    component register_file
+    component RegisterFile
         Port (
             clk         : in  std_logic;
             we          : in  std_logic;
@@ -32,7 +32,7 @@ architecture Behavioral of tb_register_file is
 
 begin
 
-    uut: register_file
+    uut: RegisterFile
         Port map (
             clk         => clk,
             we          => we,
