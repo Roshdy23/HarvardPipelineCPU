@@ -1,0 +1,74 @@
+; Set origin to address 0x0000
+.ORG 0x0000
+
+; Arithmetic and Logic Instructions
+NOT R0, R1        ; R0 = NOT R1
+INC R0, R1        ; R0 = R1 + 1
+MOV R0, R1        ; R0 = R1
+ADD R0,R1,R2    ; R0 = R1 + R2
+SUB R0, R1,R2    ; R0 = R1 - R2
+AND R0, R1, R2    ; R0 = R1 AND R2
+
+; Set origin to address 0x0010
+.ORG 0x0010
+
+; Load and Store Instructions
+IADD R0,R1,#5   ; R0 = R1 + 5
+LDM R0, #10       ; R0 = Memory[10]
+LDD R0,3(R1)        ; R0 = Memory[R1]
+STD R1,10(R2)        ; Memory[R2] = R1
+
+; Set origin to address 0x0020
+.ORG 0x0020
+
+; Jump and Call Instructions
+JZ R1     ; Jump to LABEL1 if R1 == 0
+JN R1     ; Jump to LABEL2 if R1 < 0
+JC R1     ; Jump to LABEL3 if carry flag is set
+JMP R1        ; Unconditional jump to LABEL4
+CALL R1    ; Call FUNCTION1
+RET                ; Return from function
+RTI                ; Return from interrupt
+INT #1             ; Trigger interrupt 1
+
+; Set origin to address 0x0030
+.ORG 0x0030
+
+; Control Instructions
+NOP                ; No operation
+HLT                ; Halt execution
+SETC               ; Set carry flag
+OUT R1             ; Output value in R1
+IN R0              ; Input value to R0
+PUSH R1            ; Push R1 onto stack
+POP R0             ; Pop value from stack into R0
+
+; Define labels
+
+    ; Code for LABEL1
+    JMP R2
+
+
+    ; Code for LABEL2
+    JMP R3
+
+
+    ; Code for LABEL3
+    JMP R4
+
+
+    ; Code for LABEL4
+    JMP R5
+
+
+    ; Function code
+    RET
+
+.org 0x0fe8 ;at the end of the program
+    ; Interrupt service routine
+    mov r7,r6
+
+
+.org 0x0fff ;at the end of the program
+    ; Interrupt service routine
+    RTI
