@@ -6,8 +6,6 @@ ENTITY ALU IS
     PORT (
         A                   : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
         B                   : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
-        flag                : IN STD_LOGIC;
-        jump                : IN STD_LOGIC;
         Sel                 : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
         CF_in, NF_in, ZF_in : IN STD_LOGIC;
         Result              : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
@@ -83,17 +81,17 @@ BEGIN
         A WHEN Sel = "101" ELSE
         (OTHERS => '0');
 
-    CF <= '0' WHEN jump = '1' ELSE
-        carry_add WHEN (Sel = "010" AND flag = '0') ELSE
-        carry_inc WHEN (Sel = "011" AND flag = '0') ELSE
+    CF <= 
+        carry_add WHEN (Sel = "010") ELSE
+        carry_inc WHEN (Sel = "011") ELSE
         CF_in;
 
-    NF <= '0' WHEN jump = '1' ELSE
-        neg_sub WHEN (Sel = "100" AND flag = '0') ELSE
+    NF <= 
+        neg_sub WHEN (Sel = "100") ELSE
         NF_in;
 
-    ZF <= '0' WHEN jump = '1' ELSE
-        '1' WHEN (res = "0000000000000000" AND flag = '0') ELSE
+    ZF <=
+        '1' WHEN (res = "0000000000000000" ) ELSE
         ZF_in;
 
     Result <= res;
