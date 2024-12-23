@@ -71,10 +71,10 @@ BEGIN
         WAIT FOR clk_period;
 
         push     <= '0';
+        result   <= x"0FFE";
+        stack_op <= '0';
         we       <= '0';
         re       <= '1';
-        stack_op <= '0';
-        result   <= x"0FFE";
         WAIT FOR clk_period;
         ASSERT (data_out = x"1234") REPORT "Test case 2 failed (push operation)" SEVERITY ERROR;
        
@@ -86,10 +86,10 @@ BEGIN
         WAIT FOR clk_period;
 
         push     <= '0';
-        we       <= '0';
-        re       <= '1';
         stack_op <= '0';
         result   <= x"0FFD";
+        we       <= '0';
+        re       <= '1';
         WAIT FOR clk_period;
         ASSERT (data_out = x"1235") REPORT "Test case again failed (push operation)" SEVERITY ERROR;
         

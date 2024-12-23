@@ -1,0 +1,20 @@
+# vsim -c tb_MemoryStage -do "run all; quit" 
+# Start time: 18:20:32 on Dec 23,2024
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Loading work.tb_memorystage(behavioral)
+# Loading work.memorystage(behavioral)
+# Loading work.stackcontrolunit(behavioral)
+# Loading work.muxn(behavioral)
+# Loading work.ram(datamemory)
+# Loading work.subn(behavioral)
+# Loading work.orn(behavioral)
+# Loading work.and2(behavioral)
+# Loading work.exceptioncontroller(behavioral)
+# run all
+# Invalid time value: all
+#  quit
+# End time: 18:20:33 on Dec 23,2024, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0

@@ -7,16 +7,16 @@ ARCHITECTURE DataMemory OF Ram IS
     SIGNAL memory             : memory_array := (OTHERS => (OTHERS => '0'));
     SIGNAL accessible_address : STD_LOGIC_VECTOR(11 DOWNTO 0);
 BEGIN
-    PROCESS (clk, rst)
+    PROCESS (clk, rst, re, accessible_address)
     BEGIN
         IF rst = '0' THEN
             data_out <= (OTHERS => '0');
             memory   <= (OTHERS => (OTHERS => '0'));
+        ELSIF re = '1' THEN
+            data_out <= memory(to_integer(unsigned(accessible_address)));
         ELSIF rising_edge(clk) THEN
             IF we = '1' THEN
                 memory(to_integer(unsigned(accessible_address))) <= data_in;
-            ELSIF re = '1' THEN
-                data_out <= memory(to_integer(unsigned(accessible_address)));
             END IF;
         END IF;
     END PROCESS;
