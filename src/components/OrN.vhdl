@@ -6,12 +6,20 @@ ENTITY OrN IS
         W : INTEGER := 3
     );
     PORT (
-        inputs : IN STD_LOGIC_VECTOR(W - 1 DOWNTO 0); -- Give it input as (a & b & c)
+        inputs : IN STD_LOGIC_VECTOR(W - 1 DOWNTO 0);
         y      : OUT STD_LOGIC
     );
 END OrN;
 
 ARCHITECTURE Behavioral OF OrN IS
 BEGIN
-    y <= OR reduce(inputs); -- Reduce function performs OR on all bits of the vector
+    PROCESS (inputs)
+        VARIABLE temp : STD_LOGIC := '0';
+    BEGIN
+        temp := '0';
+        FOR i IN inputs'RANGE LOOP
+            temp := temp OR inputs(i);
+        END LOOP;
+        y <= temp;
+    END PROCESS;
 END Behavioral;

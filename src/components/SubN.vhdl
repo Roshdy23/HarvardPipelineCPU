@@ -17,9 +17,8 @@ END SubN;
 ARCHITECTURE Behavioral OF SubN IS
 BEGIN
     PROCESS (a, b)
-        VARIABLE temp : unsigned(W DOWNTO 0);
-    BEGIN
-        temp := '0' & signed(a) - signed(b);
+        VARIABLE temp : SIGNED(W DOWNTO 0);
+        temp := SIGNED('0' & a) - SIGNED('0' & b);
         y  <= STD_LOGIC_VECTOR(temp(W - 1 DOWNTO 0));
         nf <= temp(W);
     END PROCESS;
