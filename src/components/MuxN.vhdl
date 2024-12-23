@@ -6,10 +6,10 @@ ENTITY MuxN IS
         W : INTEGER := 16
     );
     PORT (
-        a : IN STD_LOGIC_VECTOR(W - 1 DOWNTO 0);
-        b : IN STD_LOGIC_VECTOR(W - 1 DOWNTO 0);
+        a   : IN STD_LOGIC_VECTOR(W - 1 DOWNTO 0);
+        b   : IN STD_LOGIC_VECTOR(W - 1 DOWNTO 0);
         sel : IN STD_LOGIC;
-        y : OUT STD_LOGIC_VECTOR(W - 1 DOWNTO 0)
+        y   : OUT STD_LOGIC_VECTOR(W - 1 DOWNTO 0)
     );
 END MuxN;
 
