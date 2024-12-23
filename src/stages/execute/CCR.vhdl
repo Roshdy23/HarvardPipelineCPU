@@ -6,8 +6,6 @@ Entity CCR is
     port(rst,clk                      :in  std_logic;
          Cin,Nin,Zin                  :in  std_logic;
          Reset_CF,Reset_ZF,Reset_NF   :in  std_logic;
-         RTI                          :in  std_logic;
-         Flags_Restor                 :in  std_logic_vector (2 downto 0);
          Flags_out                    :out std_logic_vector (2 downto 0);
          Enable                       :in  std_logic);
 End Entity CCR;
@@ -25,8 +23,6 @@ Architecture arch_CCR Of CCR Is
          begin
               if rst='1' then           
                  Flags_out <= (others=>'0');
-              elsif RTI='1' then
-                     Flags_out <= Flags_Restor;
               elsif rising_edge (clk) then 
                       if Enable ='1' then
                      Flags_out<= C_out & Z_out & N_out;
