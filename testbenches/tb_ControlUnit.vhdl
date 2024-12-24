@@ -12,7 +12,7 @@ ARCHITECTURE Behavioral OF tb_ControlUnit IS
             rst            : IN STD_LOGIC;
             opcode         : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
             func_code      : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
-            index_in       : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+            index_in       : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
             jz             : OUT STD_LOGIC;
             jn             : OUT STD_LOGIC;
             jc             : OUT STD_LOGIC;
@@ -33,37 +33,34 @@ ARCHITECTURE Behavioral OF tb_ControlUnit IS
             rti            : OUT STD_LOGIC;
             alu_src1       : OUT STD_LOGIC;
             alu_src2       : OUT STD_LOGIC;
-            ie_mem_wb      : OUT STD_LOGIC;
-            mem_wb_wb      : OUT STD_LOGIC;
             index_out      : OUT STD_LOGIC;
             stack_op       : OUT STD_LOGIC;
             push           : OUT STD_LOGIC;
             pop            : OUT STD_LOGIC;
-            keep_flags     : OUT STD_LOGIC
+            flags_en       : OUT STD_LOGIC
         );
     END COMPONENT;
 
-    SIGNAL clk                  : STD_LOGIC := '0';
-    SIGNAL rst                  : STD_LOGIC;
-    SIGNAL opcode               : STD_LOGIC_VECTOR(1 DOWNTO 0);
-    SIGNAL func_code            : STD_LOGIC_VECTOR(2 DOWNTO 0);
-    SIGNAL index_in             : STD_LOGIC_VECTOR(2 DOWNTO 0);
-    SIGNAL jz, jn, jc, jmp      : STD_LOGIC;
-    SIGNAL call, ret, int, nop  : STD_LOGIC;
-    SIGNAL branch_predict       : STD_LOGIC;
-    SIGNAL alu_control          : STD_LOGIC_VECTOR(2 DOWNTO 0);
-    SIGNAL prev_op              : STD_LOGIC;
-    SIGNAL out_en, in_en        : STD_LOGIC;
-    SIGNAL mem_re               : STD_LOGIC;
-    SIGNAL mem_we               : STD_LOGIC;
-    SIGNAL mem_to_reg           : STD_LOGIC;
-    SIGNAL reg_we               : STD_LOGIC;
-    SIGNAL rti                  : STD_LOGIC;
-    SIGNAL alu_src1, alu_src2   : STD_LOGIC;
-    SIGNAL ie_mem_wb, mem_wb_wb : STD_LOGIC;
-    SIGNAL index_out            : STD_LOGIC;
-    SIGNAL stack_op, push, pop  : STD_LOGIC;
-    SIGNAL keep_flags           : STD_LOGIC;
+    SIGNAL clk                 : STD_LOGIC := '0';
+    SIGNAL rst                 : STD_LOGIC;
+    SIGNAL opcode              : STD_LOGIC_VECTOR(1 DOWNTO 0);
+    SIGNAL func_code           : STD_LOGIC_VECTOR(2 DOWNTO 0);
+    SIGNAL index_in            : STD_LOGIC_VECTOR(1 DOWNTO 0);
+    SIGNAL jz, jn, jc, jmp     : STD_LOGIC;
+    SIGNAL call, ret, int, nop : STD_LOGIC;
+    SIGNAL branch_predict      : STD_LOGIC;
+    SIGNAL alu_control         : STD_LOGIC_VECTOR(2 DOWNTO 0);
+    SIGNAL prev_op             : STD_LOGIC;
+    SIGNAL out_en, in_en       : STD_LOGIC;
+    SIGNAL mem_re              : STD_LOGIC;
+    SIGNAL mem_we              : STD_LOGIC;
+    SIGNAL mem_to_reg          : STD_LOGIC;
+    SIGNAL reg_we              : STD_LOGIC;
+    SIGNAL rti                 : STD_LOGIC;
+    SIGNAL alu_src1, alu_src2  : STD_LOGIC;
+    SIGNAL index_out           : STD_LOGIC;
+    SIGNAL stack_op, push, pop : STD_LOGIC;
+    SIGNAL flags_en            : STD_LOGIC;
 
     CONSTANT clk_period     : TIME                         := 10 ns;
     CONSTANT ALU_AND        : STD_LOGIC_VECTOR(2 DOWNTO 0) := "000";
@@ -136,13 +133,11 @@ BEGIN
         rti            => rti,
         alu_src1       => alu_src1,
         alu_src2       => alu_src2,
-        ie_mem_wb      => ie_mem_wb,
-        mem_wb_wb      => mem_wb_wb,
         index_out      => index_out,
         stack_op       => stack_op,
         push           => push,
         pop            => pop,
-        keep_flags     => keep_flags
+        flags_en       => flags_en
     );
 
     -- Test process
@@ -219,8 +214,8 @@ BEGIN
         func_code <= "000"; -- IADD
         WAIT FOR 10 ns;
         passed_tests := passed_tests + check_and_report(
-            (alu_control & alu_src1 & alu_src2 & reg_we & prev_op & nop & keep_flags),
-            (ALU_ADD & READ_DATA_1 & READ_IMMEDIATE & '1' & '1' & '1' & '0'),
+            (alu_control & alu_src1 & alu_src2 & reg_we & prev_op & nop & flags_en),
+            (ALU_ADD & READ_DATA_1 & READ_IMMEDIATE & '1' & '1' & '1' & '1'),
             "Test 7 failed: IADD operation");
 
         -- Test 8: Previous operation
@@ -235,8 +230,8 @@ BEGIN
         func_code <= "001"; -- LDM
         WAIT FOR 10 ns;
         passed_tests := passed_tests + check_and_report(
-            (alu_control & alu_src2 & reg_we & mem_re & mem_to_reg & prev_op & nop & keep_flags),
-            (ALU_NOP & READ_IMMEDIATE & '1' & '1' & '1' & '1' & '1' & '0'),
+            (alu_control & alu_src2 & reg_we & mem_re & mem_to_reg & prev_op & nop & flags_en),
+            (ALU_NOP & READ_IMMEDIATE & '1' & '1' & '1' & '1' & '1' & '1'),
             "Test 9 failed: LDM operation");
         WAIT FOR 10 ns; -- Wait for the previous operation to complete
 
@@ -245,8 +240,8 @@ BEGIN
         func_code <= "010"; -- LDD
         WAIT FOR 10 ns;
         passed_tests := passed_tests + check_and_report(
-            (alu_control & alu_src1 & alu_src2 & reg_we & mem_re & mem_to_reg & prev_op & nop & keep_flags),
-            (ALU_ADD & READ_DATA_1 & READ_IMMEDIATE & '1' & '1' & '1' & '1' & '1' & '1'),
+            (alu_control & alu_src1 & alu_src2 & reg_we & mem_re & mem_to_reg & prev_op & nop & flags_en),
+            (ALU_ADD & READ_DATA_1 & READ_IMMEDIATE & '1' & '1' & '1' & '1' & '1' & '0'),
             "Test 10 failed: LDD operation");
         WAIT FOR 10 ns; -- Wait for the previous operation to complete
 
@@ -255,8 +250,8 @@ BEGIN
         func_code <= "011"; -- STD
         WAIT FOR 10 ns;
         passed_tests := passed_tests + check_and_report(
-            (alu_control & alu_src1 & alu_src2 & reg_we & mem_we & prev_op & nop & keep_flags),
-            (ALU_ADD & READ_DATA_2 & READ_IMMEDIATE & '0' & '1' & '1' & '1' & '1'),
+            (alu_control & alu_src1 & alu_src2 & reg_we & mem_we & prev_op & nop & flags_en),
+            (ALU_ADD & READ_DATA_2 & READ_IMMEDIATE & '0' & '1' & '1' & '1' & '0'),
             "Test 11 failed: STD operation");
         WAIT FOR 10 ns; -- Wait for the previous operation to complete
 
@@ -348,8 +343,8 @@ BEGIN
         func_code <= "001";
         WAIT FOR 10 ns;
         passed_tests := passed_tests + check_and_report(
-            ('1' & keep_flags),
-            ('1' & '0'),
+            ('1' & flags_en),
+            ('1' & '1'),
             "Test 21 failed: HLT operation");
 
         -- Test 22: SETC operation
@@ -357,8 +352,8 @@ BEGIN
         func_code <= "010";
         WAIT FOR 10 ns;
         passed_tests := passed_tests + check_and_report(
-            (keep_flags & '0'),
-            ('0' & '0'),
+            (flags_en & '0'),
+            ('1' & '0'),
             "Test 22 failed: SETC operation");
 
         -- Test 23: OUT operation

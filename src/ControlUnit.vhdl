@@ -9,7 +9,7 @@ ENTITY ControlUnit IS
         rst            : IN STD_LOGIC;                    -- Reset
         opcode         : IN STD_LOGIC_VECTOR(1 DOWNTO 0); -- Opcode
         func_code      : IN STD_LOGIC_VECTOR(2 DOWNTO 0); -- Function
-        index_in       : IN STD_LOGIC_VECTOR(2 DOWNTO 0); -- Index
+        index_in       : IN STD_LOGIC_VECTOR(1 DOWNTO 0); -- Index
         jz             : OUT STD_LOGIC;
         jn             : OUT STD_LOGIC;
         jc             : OUT STD_LOGIC;
@@ -30,13 +30,11 @@ ENTITY ControlUnit IS
         rti            : OUT STD_LOGIC;
         alu_src1       : OUT STD_LOGIC;
         alu_src2       : OUT STD_LOGIC;
-        ie_mem_wb      : OUT STD_LOGIC;
-        mem_wb_wb      : OUT STD_LOGIC;
         index_out      : OUT STD_LOGIC;
         stack_op       : OUT STD_LOGIC;
         push           : OUT STD_LOGIC;
         pop            : OUT STD_LOGIC;
-        keep_flags     : OUT STD_LOGIC
+        flags_en     : OUT STD_LOGIC
     );
 END ControlUnit;
 
@@ -74,13 +72,11 @@ BEGIN
             rti            <= '0';
             alu_src1       <= '0';
             alu_src2       <= '0';
-            ie_mem_wb      <= '0';
-            mem_wb_wb      <= '0';
             index_out      <= '0';
             stack_op       <= '0';
             push           <= '0';
             pop            <= '0';
-            keep_flags     <= '0';
+            flags_en     <= '1';
         ELSIF rising_edge(clk) THEN
             -- Previous Op Code  indicates that the current instruction is a 16-bit Immediate
             IF prev_op = '1' THEN
@@ -108,14 +104,11 @@ BEGIN
                 rti            <= '0';
                 alu_src1       <= '0';
                 alu_src2       <= '0';
-                ie_mem_wb      <= '0';
-                mem_wb_wb      <= '0';
                 index_out      <= '0';
                 stack_op       <= '0';
-                keep_flags     <= '0';
                 push           <= '0';
                 pop            <= '0';
-                keep_flags     <= '0';
+                flags_en     <= '1';
 
                 -- Control signals
                 CASE opcode IS
@@ -164,13 +157,13 @@ BEGIN
                                 mem_re      <= '1';
                                 mem_to_reg  <= '1';
                                 reg_we      <= '1';
-                                keep_flags  <= '1';
+                                flags_en  <= '0';
                             WHEN "011" => -- STD Rsrc1, offset(Rsrc2)
                                 alu_control <= ALU_ADD;
                                 alu_src1    <= READ_DATA_2;    -- Read Data 1
                                 alu_src2    <= READ_IMMEDIATE; -- Read Data 2
                                 mem_we      <= '1';
-                                keep_flags  <= '1';
+                                flags_en  <= '0';
                             WHEN OTHERS =>
                                 nop <= '1';
                         END CASE;
