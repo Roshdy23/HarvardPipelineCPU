@@ -14,11 +14,66 @@ ENTITY ALU IS
 END ALU;
 
 ARCHITECTURE Behavioral OF ALU IS
+COMPONENT AndN
+    GENERIC (
+        W : INTEGER := 16
+    );
+    PORT (
+        a : IN  STD_LOGIC_VECTOR(W-1 DOWNTO 0);
+        b : IN  STD_LOGIC_VECTOR(W-1 DOWNTO 0);
+        y : OUT STD_LOGIC_VECTOR(W-1 DOWNTO 0)
+    );
+END COMPONENT;
+
+COMPONENT NotN
+    GENERIC (
+        W : INTEGER := 16
+    );
+    PORT (
+        a : IN  STD_LOGIC_VECTOR(W-1 DOWNTO 0);
+        y : OUT STD_LOGIC_VECTOR(W-1 DOWNTO 0)
+    );
+END COMPONENT;
+
+COMPONENT AddN
+    GENERIC (
+        W : INTEGER := 16
+    );
+    PORT (
+        a  : IN  STD_LOGIC_VECTOR(W-1 DOWNTO 0);
+        b  : IN  STD_LOGIC_VECTOR(W-1 DOWNTO 0);
+        y  : OUT STD_LOGIC_VECTOR(W-1 DOWNTO 0);
+        cf : OUT STD_LOGIC
+    );
+END COMPONENT;
+
+COMPONENT IncN
+    GENERIC (
+        W : INTEGER := 16
+    );
+    PORT (
+        a  : IN  STD_LOGIC_VECTOR(W-1 DOWNTO 0);
+        y  : OUT STD_LOGIC_VECTOR(W-1 DOWNTO 0);
+        cf : OUT STD_LOGIC
+    );
+END COMPONENT;
+
+COMPONENT SubN
+    GENERIC (
+        W : INTEGER := 16
+    );
+    PORT (
+        a  : IN  STD_LOGIC_VECTOR(W-1 DOWNTO 0);
+        b  : IN  STD_LOGIC_VECTOR(W-1 DOWNTO 0);
+        y  : OUT STD_LOGIC_VECTOR(W-1 DOWNTO 0);
+        nf : OUT STD_LOGIC
+    );
+END COMPONENT;
     SIGNAL res, result_and, result_not, result_add, result_inc, result_sub : STD_LOGIC_VECTOR(15 DOWNTO 0);
     SIGNAL carry_add, carry_inc, neg_sub                                   : STD_LOGIC;
 BEGIN
 
-    uut_and16 : ENTITY work.AndN(Behavioral)
+    uut_and16 :  AndN
         GENERIC MAP(
             W => 16
         )
@@ -29,7 +84,7 @@ BEGIN
         );
 
     -- Instantiate Not16
-    uut_Not16 : ENTITY work.NotN(Behavioral)
+    uut_Not16 : NotN
         GENERIC MAP(
             W => 16
         )
@@ -39,7 +94,7 @@ BEGIN
         );
 
     -- Instantiate add16
-    uut_add16 : ENTITY work.AddN(Behavioral)
+    uut_add16 :  AddN
         GENERIC MAP(
             W => 16
         )
@@ -51,7 +106,7 @@ BEGIN
         );
 
     -- Instantiate inc16
-    uut_inc16 : ENTITY work.IncN(Behavioral)
+    uut_inc16 :  IncN
         GENERIC MAP(
             W => 16
         )
@@ -61,7 +116,7 @@ BEGIN
             cf => carry_inc
         );
 
-    uut_sub16 : ENTITY work.SubN(Behavioral)
+    uut_sub16 : SubN
         GENERIC MAP(
             W => 16
         )

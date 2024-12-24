@@ -15,7 +15,7 @@ begin
     process(clk, rst)
     begin
         if rst = '1' then
-            output1 <= '0';
+            output1 <= (others =>'0');
         elsif rising_edge(clk) then
             output1 <= input1;
         end if;

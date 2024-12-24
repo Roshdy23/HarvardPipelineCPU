@@ -10,6 +10,7 @@ entity execute is
         alu_op      : in  STD_LOGIC_VECTOR(3 downto 0);
         read_data1    : in  STD_LOGIC_VECTOR(15 downto 0);
         read_data2    : in  STD_LOGIC_VECTOR(15 downto 0);
+        rdst_in, pc_in        : in std_logic_vector(15 downto 0);
         res_forward           : in std_logic_vector(15 downto 0);
         wb_forward           : in std_logic_vector(15 downto 0);
         immediate   : in  STD_LOGIC_VECTOR(15 downto 0);
@@ -28,7 +29,7 @@ entity execute is
         input_port_enable : in std_logic;
         output_port_enable : in std_logic;
         branch_detect : out std_logic;
-        final_res :out std_logic_vector(15 downto 0)
+        final_res, rsrc1_out, rdst_out, pc_out :out std_logic_vector(15 downto 0)
     );
 end execute;
 
@@ -74,8 +75,6 @@ architecture Behavioral of execute is
             rst, clk                  : in  std_logic;
             Cin, Nin, Zin             : in  std_logic;
             Reset_CF, Reset_ZF, Reset_NF : in  std_logic;
-            RTI                       : in  std_logic;
-            Flags_Restor              : in  std_logic_vector(2 downto 0);
             Flags_out                 : out std_logic_vector(2 downto 0);
             Enable                    : in  std_logic
         );
@@ -115,8 +114,8 @@ architecture Behavioral of execute is
 
     signal mux_out1, mux_out2, ALU_res, temp_final_res, output_port1 : STD_LOGIC_VECTOR(15 downto 0);
     signal CF_ALU, ZF_ALU, NF_ALU : STD_LOGIC;
-    signal flags_CCR, flags_CCR_out, flags_pre_ccr_in, flags_pre_ccr_out : std_logic_vector ( 2 downto 0);
-
+    signal flags_CCR, flags_CCR_out, flags_pre_ccr_in, flags_pre_ccr_out, temp_flags_comb1, temp_flags_comb2 : std_logic_vector ( 2 downto 0);
+    
     begin
 
         U1: Special_Mux
@@ -155,13 +154,17 @@ architecture Behavioral of execute is
                 ZF => ZF_ALU
             );
 
+
+        temp_flags_comb1 <= ZF_ALU & CF_ALU & NF_ALU;
+        temp_flags_comb2 <= ZF_pre_CCR & CF_pre_CCR & NF_pre_CCR;
+
         U4: MuxN
             generic map (
                 W => 3
             )
             port map (
-                a => ZF_ALU & CF_ALU & NF_ALU,
-                b => ZF_pre_CCR & CF_pre_CCR & NF_pre_CCR,
+                a => temp_flags_comb1,
+                b => temp_flags_comb2,
                 sel => RTI,
                 y => flags_CCR
             );
@@ -186,7 +189,7 @@ architecture Behavioral of execute is
             )
             port map (
                 a => flags_CCR_out,
-                b => ZF_pre_CCR & CF_pre_CCR & NF_pre_CCR,
+                b => temp_flags_comb2,
                 sel => RTI,
                 y => flags_pre_ccr_in
             );
@@ -211,16 +214,7 @@ architecture Behavioral of execute is
             branch_out => branch_signal
         );
 
-        U9: MuxN
-            generic map (
-                W => 16
-            )
-            port map (
-                a => pc_in,
-                b => input_port,
-                sel => branch_signal,
-                y => pc_out
-            );
+       
 
         U10:   MuxN
             generic map (
@@ -244,6 +238,9 @@ architecture Behavioral of execute is
 
         branch_detect <= branch_signal;
         final_res <= temp_final_res;
+        rsrc1_out <= read_data1;
+        rdst_out <= rdst_in;
+        pc_out <= pc_in;
 
         
 
