@@ -72,7 +72,7 @@ BEGIN
                 v_jump_check_out := read_data1;
             END IF;
 
-            IF v_is_jump = '0' OR v_is_hlt THEN
+            IF v_is_jump = '0' OR v_is_hlt = '1' THEN
                 v_final_pc := v_reset_signal_check_out;
             ELSE
                 v_final_pc := v_jump_check_out;
