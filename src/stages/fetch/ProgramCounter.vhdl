@@ -57,7 +57,7 @@ BEGIN
             IF v_is_hlt = '0' THEN
                 v_hlt_check_out := v_next_pc;
             ELSE
-                v_hlt_check_out := prev_pc;
+                v_hlt_check_out := pc;
             END IF;
 
             IF reset_signal = '1' THEN
@@ -72,7 +72,7 @@ BEGIN
                 v_jump_check_out := read_data1;
             END IF;
 
-            IF v_is_jump = '0' THEN
+            IF v_is_jump = '0' OR v_is_hlt THEN
                 v_final_pc := v_reset_signal_check_out;
             ELSE
                 v_final_pc := v_jump_check_out;

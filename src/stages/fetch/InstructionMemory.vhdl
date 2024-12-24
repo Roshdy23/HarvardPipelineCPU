@@ -47,13 +47,13 @@ ARCHITECTURE InstructionMemory OF Ram IS
 
 BEGIN
 
-    PROCESS (clk, rst)
+    PROCESS (clk, rst, address)
     BEGIN
         IF rst = '0' THEN
             data_out <= (OTHERS => '0');
             ram <= init_ram_bin;
-        ELSIF rising_edge(clk) THEN
-            IF we = '1' THEN
+        ELSE
+            IF we = '1' AND rising_edge(clk) THEN
                 ram(to_integer(unsigned(address))) <= data_in;
             END IF;
             IF re = '1' THEN

@@ -111,9 +111,9 @@ def write_instructions_to_bin_file(program_instructions, output_file_name):
         Rsrc2 = '000'
         index = '00'
         imm = None
-        instruction_bit_ditail = '0' * 16
+        instruction_bit_detail = '0' * 16
         if number_of_operands == 0:
-            instruction_bit_ditail = (opcode + funct).ljust(16, '0')
+            instruction_bit_detail = (opcode + funct).ljust(16, '0')
         elif number_of_operands == 1:
             last_operand = ''
             if opcode == '10' and funct == '111':
@@ -126,16 +126,20 @@ def write_instructions_to_bin_file(program_instructions, output_file_name):
             else:
                 Rsrc1, _ = get_operand(instruction[1])
 
-            instruction_bit_ditail = (opcode + funct + Rsrc1 + last_operand).ljust(16, '0')
+            instruction_bit_detail = (opcode + funct + Rsrc1 + last_operand).ljust(16, '0')
         elif number_of_operands == 2:
             Rdst, _ = get_operand(instruction[1])
             Rsrc1, imm = get_operand(instruction[2])
-            instruction_bit_ditail = (opcode + funct + Rsrc1 + Rsrc2 + Rdst).ljust(16, '0')
+            instruction_bit_detail = (opcode + funct + Rsrc1 + Rsrc2 + Rdst).ljust(16, '0')
         elif number_of_operands == 3:
             Rdst, _ = get_operand(instruction[1])
             Rsrc1, _ = get_operand(instruction[2])
             Rsrc2, imm = get_operand(instruction[3])
-            instruction_bit_ditail = (opcode + funct + Rsrc1 + Rsrc2 + Rdst).ljust(16, '0')
+            instruction_bit_detail = (opcode + funct + Rsrc1 + Rsrc2 + Rdst).ljust(16, '0')
+
+        # if the instruction is a HLT we will put the first bit to 1.
+        if opcode == '11' and funct == '001':
+            instruction_bit_detail = instruction_bit_detail[:-1] + '1'
 
         print(
             f'opcode: {opcode}, '
@@ -146,10 +150,10 @@ def write_instructions_to_bin_file(program_instructions, output_file_name):
             f'index: {index}, '
             f'imm: {imm}')
 
-        write_to_line(output_file_name, current_address, instruction_bit_ditail)
+        write_to_line(output_file_name, current_address, instruction_bit_detail)
         current_address += 1
         if imm is not None:
-            write_to_line(output_file_name, current_address, instruction_bit_ditail)
+            write_to_line(output_file_name, current_address, instruction_bit_detail)
             current_address += 1
 
 
