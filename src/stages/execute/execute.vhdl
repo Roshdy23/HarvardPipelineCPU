@@ -3,10 +3,10 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_ARITH.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
-entity execute is
+entity Execute is
     Port (
         clk         : in  STD_LOGIC;
-        reset       : in  STD_LOGIC;
+        rst       : in  STD_LOGIC;
         read_data1    : in  STD_LOGIC_VECTOR(15 downto 0);
         read_data2    : in  STD_LOGIC_VECTOR(15 downto 0);
         rdst_in        : in std_logic_vector(2 downto 0);
@@ -19,7 +19,7 @@ entity execute is
         JN, JZ, JC : in std_logic;
       
         RTI :in std_logic;
-        flags_enable : in std_logic;
+        flags_en : in std_logic;
 
         control_unit_sel_1 : in  STD_LOGIC;
         foward_unit_sel_1 : in  STD_LOGIC_VECTOR(1 downto 0);
@@ -31,9 +31,9 @@ entity execute is
         rdst_out : out std_logic_vector(2 downto 0);
         final_res, rsrc1_out, pc_out :out std_logic_vector(15 downto 0)
     );
-end execute;
+end Execute;
 
-architecture Behavioral of execute is
+architecture Behavioral of Execute is
 
     component Special_Mux is
         Port (
@@ -197,13 +197,13 @@ architecture Behavioral of execute is
         U11:   outout_port 
             Port map (
                 clk => clk,
-                rst => reset,
+                rst => rst,
                 input1 => temp_final_res,
                 output1 => output_port1
             );
 
-            flags_CCR <= (others => '0') when reset = '1' else flags_CCR;
-            flags_CCR_pre <= (others => '0') when reset = '1' else flags_CCR_pre;
+            flags_CCR <= (others => '0') when rst = '1' else flags_CCR;
+            flags_CCR_pre <= (others => '0') when rst = '1' else flags_CCR_pre;
 
 
         branch_detect <= branch_signal;

@@ -69,6 +69,10 @@ BEGIN
             y   => address
         );
     imem : ENTITY work.Ram(DataMemory)
+        GENERIC MAP(
+            DATA_WIDTH => 16,
+            ADDR_WIDTH => 16
+        )
         PORT MAP(
             clk      => clk,
             rst      => rst,

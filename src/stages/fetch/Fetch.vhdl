@@ -20,17 +20,18 @@ ENTITY Fetch IS
         read_data1      : IN STD_LOGIC_VECTOR(DATA_WIDTH - 1 DOWNTO 0);
         hazard_data_in  : IN STD_LOGIC_VECTOR(DATA_WIDTH - 1 DOWNTO 0);
         instruction     : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
+        pc_out          : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
         next_pc         : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
     );
 END Fetch;
 
 ARCHITECTURE Behavioral OF Fetch IS
-    SIGNAL pc : STD_LOGIC_VECTOR(DATA_WIDTH - 1 DOWNTO 0) := (OTHERS => '0');
-    SIGNAL address : STD_LOGIC_VECTOR(11 DOWNTO 0) := (OTHERS => '0');
-    SIGNAL pre_fetched_instruction : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0');
-    SIGNAL hlt_bit : STD_LOGIC;
-    SIGNAL data_in : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0');
-    SIGNAL reset_value : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL pc                      : STD_LOGIC_VECTOR(DATA_WIDTH - 1 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL address                 : STD_LOGIC_VECTOR(11 DOWNTO 0)             := (OTHERS => '0');
+    SIGNAL pre_fetched_instruction : STD_LOGIC_VECTOR(15 DOWNTO 0)             := (OTHERS => '0');
+    SIGNAL hlt_bit                 : STD_LOGIC;
+    SIGNAL data_in                 : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL reset_value             : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0');
 BEGIN
 
     PROCESS (pc, rst, clk)
@@ -83,6 +84,7 @@ BEGIN
 
     address <= pc(11 DOWNTO 0);
 
+    pc_out  <= pc;
     next_pc <= STD_LOGIC_VECTOR(unsigned(pc) + 1);
 
 END Behavioral;

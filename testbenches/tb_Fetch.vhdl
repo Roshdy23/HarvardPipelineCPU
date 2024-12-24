@@ -26,6 +26,7 @@ ARCHITECTURE behavior OF tb_Fetch IS
             read_data1      : IN STD_LOGIC_VECTOR(DATA_WIDTH - 1 DOWNTO 0);
             hazard_data_in  : IN STD_LOGIC_VECTOR(DATA_WIDTH - 1 DOWNTO 0);
             instruction     : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
+            pc_out          : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
             next_pc         : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
         );
     END COMPONENT;
@@ -46,6 +47,7 @@ ARCHITECTURE behavior OF tb_Fetch IS
 
     -- Outputs
     SIGNAL instruction : STD_LOGIC_VECTOR(15 DOWNTO 0);
+    SIGNAL pc_out : STD_LOGIC_VECTOR(15 DOWNTO 0);
     SIGNAL next_pc : STD_LOGIC_VECTOR(15 DOWNTO 0);
 
     -- Clock period definition
@@ -72,6 +74,7 @@ BEGIN
         read_data1      => read_data1,
         hazard_data_in  => hazard_data_in,
         instruction     => instruction,
+        pc_out          => pc_out,
         next_pc         => next_pc
     );
 
@@ -87,17 +90,17 @@ BEGIN
     -- Stimulus process
     stim_proc : PROCESS
     BEGIN
-        -- hold reset state for 100 ns.
+        -- hold reset state for 10 ns.
         rst <= '0';
-        WAIT FOR 100 ns;
+        WAIT FOR clk_period;
         rst <= '1';
 
         reset_signal <= '0';
-        WAIT FOR 100 ns;
+        WAIT FOR clk_period;
         reset_signal <= '1';
 
         -- Add stimulus here
-        WAIT FOR 100 ns;
+        WAIT FOR clk_period;
 
         -- Test case 1: Normal operation
         hazard <= '0';
@@ -114,38 +117,39 @@ BEGIN
 
         -- Test case 2: Hazard detected
         hazard <= '1';
-        WAIT FOR 100 ns;
+        WAIT FOR clk_period;
 
         -- Test case 3: Jump operation
         hazard <= '0';
         jmp <= '1';
-        WAIT FOR 100 ns;
+        WAIT FOR clk_period;
 
         -- Test case 4: Call operation
         jmp <= '0';
         call <= '1';
-        WAIT FOR 100 ns;
+        WAIT FOR clk_period;
 
         -- Test case 5: Branch detected
         call <= '0';
         branch_detector <= '1';
-        WAIT FOR 100 ns;
+        WAIT FOR clk_period;
 
         -- Test case 6: Reset signal
         branch_detector <= '0';
         reset_signal <= '0';
-        WAIT FOR 100 ns;
+        WAIT FOR clk_period;
 
         -- Test case 7: Hazard signal
         reset_signal <= '1';
         hazard_signal <= '1';
-        WAIT FOR 100 ns;
+        WAIT FOR clk_period;
 
         -- Test case 8: Normal operation again
         hazard_signal <= '0';
-        WAIT FOR 100 ns;
+        WAIT FOR clk_period;
 
         -- Stop simulation
+        std.env.stop;
         WAIT;
     END PROCESS;
 
