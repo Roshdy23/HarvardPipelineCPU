@@ -19,7 +19,7 @@ def get_opcode(instruction_name):
         return '10', format(list(J_TYPE.keys()).index(instruction_name), '03b'), J_TYPE[instruction_name]
     if instruction_name in O_TYPE:
         return '11', format(list(O_TYPE.keys()).index(instruction_name), '03b'), O_TYPE[instruction_name]
-    raise ValueError(f'Invalid instruction: {instruction_name}')
+    return 'Number', None, 0
 
 
 def read_instructions_from_text_file(input_file_name):
@@ -52,11 +52,12 @@ def write_to_line(file_path, target_line, insert_string, fill_string=NOP):
         file.writelines(lines)
 
 
-def check_operand(operand):
-    if operand.isdigit():
-        return True
+def is_hex_number(s):
+    return bool(re.match(r'^[0-9A-Fa-f]+$', s))
 
-    if operand[0] == '#' and operand[1:].isdigit():
+
+def check_operand(operand):
+    if is_hex_number(operand):
         return True
 
     if len(operand) != 2 or operand[0] != 'R' or not operand[1].isdigit():
@@ -78,47 +79,55 @@ def get_operand(operand):
     if not check_operand(operand):
         raise ValueError(f'Invalid operand: {operand}')
 
-    if operand.isdigit():
-        return '000', format(int(operand), '16b')
-
-    if operand[0] == '#' and operand[1:].isdigit():
-        return '000', format(int(operand[1:]), '16b')
+    if is_hex_number(operand):
+        return '000', format(int(operand, 16), '16b')
 
     return format(int(operand[1]), '03b'), None
 
 
 def write_instructions_to_bin_file(program_instructions, output_file_name):
     current_address = 0
-    for instruction in program_instructions:
+
+    for i in range(len(program_instructions)):
+        instruction = program_instructions[i]
         instruction = instruction.strip()  # Remove leading and trailing whitespaces
         instruction = instruction.upper()  # Convert instruction to uppercase
-        instruction = instruction.split(';')[0]  # Remove comments
+        instruction = instruction.split('#')[0]  # Remove comments
+
         if instruction == '':
             continue
+            
         instruction = instruction.replace(',', ' ')  # Replace commas with spaces
         instruction = re.sub(r'\s*\(\s*', '(', instruction)  # Remove spaces around '('
         instruction = re.sub(r'\s*\)\s*', ')', instruction)  # Remove spaces around ')'
         instruction = instruction.split()  # Split instruction into token
         opcode, funct, number_of_operands = get_opcode(instruction[0])
+
+        print(instruction)
+        if opcode == 'Number':
+            value = format(int(instruction[0], 16), '016b')
+            write_to_line(output_file_name, current_address, value)
+            current_address += 1
+            continue
+
         if opcode == 'ORG':
-            print(opcode)
             current_address = int(instruction[1], 16)
             continue
 
-        print(instruction)
         Rdst = '000'
         Rsrc1 = '000'
         Rsrc2 = '000'
         index = '00'
         imm = None
         instruction_bit_detail = '0' * 16
+
         if number_of_operands == 0:
             instruction_bit_detail = (opcode + funct).ljust(16, '0')
         elif number_of_operands == 1:
             last_operand = ''
             if opcode == '10' and funct == '111':
                 if check_operand(instruction[1]):
-                    index = last_operand = format(int(instruction[1][1:]), '02b')
+                    index = last_operand = format(int(instruction[1]), '02b')
                 else:
                     ValueError(f'Invalid operand: {instruction[1]}')
             elif opcode == '11' and (funct == '100' or funct == '110'):
@@ -160,5 +169,8 @@ def write_instructions_to_bin_file(program_instructions, output_file_name):
 if __name__ == "__main__":
     input_file = 'program.txt'
     output_file = 'instructions.txt'
+    # if the file exists, delete it
+    if os.path.exists(output_file):
+        os.remove(output_file)
     instructions = read_instructions_from_text_file(input_file)
     write_instructions_to_bin_file(instructions, output_file)

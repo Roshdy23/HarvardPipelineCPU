@@ -1,74 +1,52 @@
-; Set origin to address 0x0000
-.ORG 0x0000
+# all numbers in hex format
+# we always start by reset signal
+# this is a commented line
+# you should ignore empty lines
 
-; Arithmetic and Logic Instructions
-NOT R0, R1        ; R0 = NOT R1
-INC R0, R1        ; R0 = R1 + 1
-MOV R0, R1        ; R0 = R1
-ADD R0,R1,R2    ; R0 = R1 + R2
-SUB R0, R1,R2    ; R0 = R1 - R2
-AND R0, R1, R2    ; R0 = R1 AND R2
+.ORG 0  #this is the reset address
+200
 
-; Set origin to address 0x0010
-.ORG 0x0010
+.ORG 1  #this is the address of the empty stack exception handler
+400
 
-; Load and Store Instructions
-IADD R0,R1,#5   ; R0 = R1 + 5
-LDM R0, #10       ; R0 = Memory[10]
-LDD R7,3 ( R1 )        ; R0 = Memory[R1]
-STD R1,10(R2)        ; Memory[R2] = R1
+.ORG 2  #this is the address of the invalid memory address exception handler
+600
 
-; Set origin to address 0x0020
-.ORG 0x0020
+# for those who are implementing the bonus (dynamic vector table):
+.ORG 6  #this is the address of INT0
+800
 
-; Jump and Call Instructions
-JZ R1     ; Jump to LABEL1 if R1 == 0
-JN R1     ; Jump to LABEL2 if R1 < 0
-JC R1     ; Jump to LABEL3 if carry flag is set
-JMP R1        ; Unconditional jump to LABEL4
-CALL R1    ; Call FUNCTION1
-RET                ; Return from function
-RTI                ; Return from interrupt
-INT #1             ; Trigger interrupt 1
+.ORG 8  #this is the address of INT2
+0A00
 
-; Set origin to address 0x0030
-.ORG 0x0030
+# Empty Stack Exception Handler
+.ORG 400
+    NOP
+    HLT
 
-; Control Instructions
-NOP                ; No operation
-HLT                ; Halt execution
-SETC               ; Set carry flag
-OUT R1             ; Output value in R1
-IN R0              ; Input value to R0
-PUSH R1            ; Push R1 onto stack
-POP R0             ; Pop value from stack into R0
+# Invalid Memory Address Exception Handler
+.ORG 600
+    NOP
+    HLT
 
-; Define labels
-
-    ; Code for LABEL1
-    JMP R2
-
-
-    ; Code for LABEL2
-    JMP R3
-
-
-    ; Code for LABEL3
-    JMP R4
-
-
-    ; Code for LABEL4
-    JMP R5
-
-
-    ; Function code
-    RET
-
-.org 0x0fe8 ;at the end of the program
-    ; Interrupt service routine
-    mov r7,r6
-
-
-.org 0x0fff ;at the end of the program
-    ; Interrupt service routine
+# INT0
+.ORG 800
+    NOP
     RTI
+
+# INT2
+.ORG 0A00
+    NOP
+    RTI
+
+NOT R1, R1     #R1 =FFFF , C--> no change, N --> 1, Z --> 0
+NOP            #No change
+INC R1, R1     #R1 =0000 , C --> 1 , N --> 0 , Z --> 1
+IN R1	       #R1= 000E, add E on the in port, flags no change
+IN R2          #R2= 0010, add 10 on the in port, flags no change
+NOT R2, R2     #R2= FFEF, C--> no change, N -->1,Z-->0
+INC R1, R1     #R1= 000F, C --> 0, N -->0, Z-->0
+LDM R3, 0005
+SUB R2, R2, R3    #R2= FFEA, C-->1 , N-->1, Z-->0
+OUT R1
+OUT R2

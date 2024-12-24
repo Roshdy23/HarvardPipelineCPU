@@ -16,6 +16,7 @@ ENTITY ProgramCounter IS
         branch_detector            : IN STD_LOGIC;
         reset_signal               : IN STD_LOGIC;
         hazard_signal              : IN STD_LOGIC;
+        reset_value                : IN STD_LOGIC_VECTOR(DATA_WIDTH - 1 DOWNTO 0);
         alu_data_out               : IN STD_LOGIC_VECTOR(DATA_WIDTH - 1 DOWNTO 0);
         read_data1                 : IN STD_LOGIC_VECTOR(DATA_WIDTH - 1 DOWNTO 0);
         instruction_memory_data_in : IN STD_LOGIC;
@@ -41,7 +42,7 @@ BEGIN
         VARIABLE v_final_pc : STD_LOGIC_VECTOR(DATA_WIDTH - 1 DOWNTO 0);
     BEGIN
         IF rst = '0' THEN
-            pc <= "0000000000001001";
+            pc <= (OTHERS => '0');
             prev_pc <= (OTHERS => '0');
         ELSIF hazard_signal = '1' THEN
             pc <= hazard_data_in;
@@ -63,7 +64,7 @@ BEGIN
             IF reset_signal = '1' THEN
                 v_reset_signal_check_out := v_hlt_check_out;
             ELSE
-                v_reset_signal_check_out := "0000000000001001";
+                v_reset_signal_check_out := reset_value;
             END IF;
 
             IF branch_detector = '1' THEN
@@ -79,6 +80,7 @@ BEGIN
             END IF;
 
             pc <= v_final_pc;
+
         END IF;
     END PROCESS;
 
