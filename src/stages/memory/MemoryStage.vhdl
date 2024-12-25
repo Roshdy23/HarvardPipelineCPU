@@ -18,6 +18,7 @@ ENTITY MemoryStage IS
         stack_op   : IN STD_LOGIC;
         epc        : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
         excep      : OUT STD_LOGIC;
+        result_out : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
         data_out   : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
     );
 END MemoryStage;
@@ -115,4 +116,6 @@ BEGIN
             excep  => excep,
             epc    => epc
         );
+
+    result_out <= result;
 END Behavioral;

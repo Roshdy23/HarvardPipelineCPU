@@ -4,22 +4,6 @@ USE IEEE.numeric_std.ALL;
 USE IEEE.std_logic_textio.ALL;
 USE std.textio.ALL;
 
-ENTITY Ram IS
-    GENERIC (
-        DATA_WIDTH : INTEGER := 16;
-        ADDR_WIDTH : INTEGER := 12 -- 4K memory
-    );
-    PORT (
-        clk      : IN STD_LOGIC;
-        rst      : IN STD_LOGIC; -- reset
-        we       : IN STD_LOGIC; -- write enable
-        re       : IN STD_LOGIC; -- read enable
-        address  : IN STD_LOGIC_VECTOR(ADDR_WIDTH - 1 DOWNTO 0);
-        data_in  : IN STD_LOGIC_VECTOR(DATA_WIDTH - 1 DOWNTO 0);
-        data_out : OUT STD_LOGIC_VECTOR(DATA_WIDTH - 1 DOWNTO 0)
-    );
-END Ram;
-
 ARCHITECTURE InstructionMemory OF Ram IS
     -- 4K * 16 bits memory
     -- Define the RAM type

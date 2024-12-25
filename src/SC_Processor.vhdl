@@ -53,7 +53,8 @@ ARCHITECTURE SC_Processor OF SC_Processor IS
     SIGNAL write_reg     : STD_LOGIC_VECTOR(2 DOWNTO 0)  := (OTHERS => '0');
 
     -- Memory signals
-    SIGNAL mem_data : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL mem_data   : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL result_out : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0');
 
     -- WriteBack signals
     SIGNAL write_data : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0');
@@ -197,6 +198,7 @@ BEGIN
             re         => mem_re,
             epc        => epc,
             excep      => exception,
+            result_out => result_out,
             data_out   => mem_data
         );
 
@@ -209,7 +211,7 @@ BEGIN
             index      => index_out,
             int        => int,
             mem_data   => mem_data,
-            in_data    => read_data1,
+            in_data    => result_out,
             wb_data    => write_data
         );
 

@@ -56,9 +56,16 @@ BEGIN
             data_out => pre_fetched_instruction
         );
 
-    hlt_bit <= pre_fetched_instruction(0);
+    PROCESS (reset_signal, clk)
+    BEGIN
+        IF reset_signal = '0' THEN
+            instruction <= "1100000000000000";
+        ELSE
+            instruction <= pre_fetched_instruction;
+        END IF;
+    END PROCESS;
 
-    instruction <= pre_fetched_instruction;
+    hlt_bit <= pre_fetched_instruction(0);
 
     program_counter : ENTITY work.ProgramCounter(Behavioral)
         GENERIC MAP(

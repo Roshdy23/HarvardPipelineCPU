@@ -62,7 +62,7 @@ BEGIN
         rst        => rst,
         read_reg1  => instruction(10 DOWNTO 8),
         read_reg2  => instruction(7 DOWNTO 5),
-        write_reg  => write_reg,
+        write_reg  => selected_rdest,
         write_data => write_data,
         read_data1 => read_data1,
         read_data2 => read_data2
