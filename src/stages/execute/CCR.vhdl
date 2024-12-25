@@ -1,35 +1,23 @@
-Library IEEE;
-Use ieee.std_logic_1164.all;
+LIBRARY IEEE;
+USE ieee.std_logic_1164.ALL;
+ENTITY CCR IS
+   PORT (
+      clk         : IN STD_LOGIC;
+      rst         : IN STD_LOGIC;
+      flags_in    : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+      flags_reset : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+      flags_out   : OUT STD_LOGIC_VECTOR(2 DOWNTO 0)
+   );
+END ENTITY CCR;
 
-
-Entity CCR is
-    port(rst,clk                      :in  std_logic;
-         Cin,Nin,Zin                  :in  std_logic;
-         Reset_CF,Reset_ZF,Reset_NF   :in  std_logic;
-         Flags_out                    :out std_logic_vector (2 downto 0);
-         Enable                       :in  std_logic);
-End Entity CCR;
-
-Architecture arch_CCR Of CCR Is
-    signal C_out,Z_out,N_out : std_logic; 
-    BEGIN
-         C_out <= '0' when Reset_CF = '1' else  
-                  Cin ; 
-         Z_out <= '0' when Reset_ZF = '1'else 
-                  Zin ; 
-         N_out <= '0' when Reset_NF = '1' else 
-                  Nin;                                 
-         process(clk,rst)
-         begin
-              if rst='1' then           
-                 Flags_out <= (others=>'0');
-              elsif rising_edge (clk) then 
-                      if Enable ='1' then
-                     Flags_out<= C_out & Z_out & N_out;
-                     end if;
-                  end if;
-        end process;
-        
-                  
-End arch_CCR;      
-         
+ARCHITECTURE Behavioral OF CCR IS
+BEGIN
+   PROCESS (clk, rst)
+   BEGIN
+      IF rst = '0' THEN
+         flags_out <= (OTHERS => '0');
+      ELSIF rising_edge(clk) THEN
+         flags_out <= flags_in AND NOT flags_reset;
+      END IF;
+   END PROCESS;
+END Behavioral;

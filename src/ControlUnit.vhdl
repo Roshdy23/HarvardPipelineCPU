@@ -34,20 +34,21 @@ ENTITY ControlUnit IS
         stack_op       : OUT STD_LOGIC;
         push           : OUT STD_LOGIC;
         pop            : OUT STD_LOGIC;
-        flags_en     : OUT STD_LOGIC
+        flags_en       : OUT STD_LOGIC
     );
 END ControlUnit;
 
 ARCHITECTURE Behavioral OF ControlUnit IS
-    CONSTANT ALU_AND        : STD_LOGIC_VECTOR(2 DOWNTO 0) := "000";
-    CONSTANT ALU_NOT        : STD_LOGIC_VECTOR(2 DOWNTO 0) := "001";
-    CONSTANT ALU_ADD        : STD_LOGIC_VECTOR(2 DOWNTO 0) := "010";
-    CONSTANT ALU_INC        : STD_LOGIC_VECTOR(2 DOWNTO 0) := "011";
-    CONSTANT ALU_SUB        : STD_LOGIC_VECTOR(2 DOWNTO 0) := "100";
-    CONSTANT ALU_NOP        : STD_LOGIC_VECTOR(2 DOWNTO 0) := "101";
-    CONSTANT READ_DATA_1    : STD_LOGIC                    := '1';
-    CONSTANT READ_DATA_2    : STD_LOGIC                    := '1';
-    CONSTANT READ_IMMEDIATE : STD_LOGIC                    := '0';
+    CONSTANT ALU_AND          : STD_LOGIC_VECTOR(2 DOWNTO 0) := "000";
+    CONSTANT ALU_NOT          : STD_LOGIC_VECTOR(2 DOWNTO 0) := "001";
+    CONSTANT ALU_ADD          : STD_LOGIC_VECTOR(2 DOWNTO 0) := "010";
+    CONSTANT ALU_INC          : STD_LOGIC_VECTOR(2 DOWNTO 0) := "011";
+    CONSTANT ALU_SUB          : STD_LOGIC_VECTOR(2 DOWNTO 0) := "100";
+    CONSTANT ALU_NOP          : STD_LOGIC_VECTOR(2 DOWNTO 0) := "101";
+    CONSTANT READ_DATA_1      : STD_LOGIC                    := '1';
+    CONSTANT READ_DATA_2_SRC1 : STD_LOGIC                    := '0';
+    CONSTANT READ_DATA_2_SRC2 : STD_LOGIC                    := '1';
+    CONSTANT READ_IMMEDIATE   : STD_LOGIC                    := '0';
 BEGIN
     PROCESS (rst, clk, opcode, func_code, index_in)
     BEGIN
@@ -76,7 +77,7 @@ BEGIN
             stack_op       <= '0';
             push           <= '0';
             pop            <= '0';
-            flags_en     <= '1';
+            flags_en       <= '1';
         ELSIF rising_edge(clk) THEN
             -- Previous Op Code  indicates that the current instruction is a 16-bit Immediate
             IF prev_op = '1' THEN
@@ -108,7 +109,7 @@ BEGIN
                 stack_op       <= '0';
                 push           <= '0';
                 pop            <= '0';
-                flags_en     <= '1';
+                flags_en       <= '1';
 
                 -- Control signals
                 CASE opcode IS
@@ -123,13 +124,13 @@ BEGIN
                                 alu_control <= ALU_NOP;
                             WHEN "011" => -- ADD Rdst, Rsrc1, Rsrc2
                                 alu_control <= ALU_ADD;
-                                alu_src2    <= READ_DATA_2; -- Read Data 2
-                            WHEN "100" =>               -- SUB Rdst, Rsrc1, Rsrc2
+                                alu_src2    <= READ_DATA_2_SRC2; -- Read Data 2
+                            WHEN "100" =>                    -- SUB Rdst, Rsrc1, Rsrc2
                                 alu_control <= ALU_SUB;
-                                alu_src2    <= READ_DATA_2; -- Read Data 2
-                            WHEN "101" =>               -- AND Rdst, Rsrc1, Rsrc2
+                                alu_src2    <= READ_DATA_2_SRC2; -- Read Data 2
+                            WHEN "101" =>                    -- AND Rdst, Rsrc1, Rsrc2
                                 alu_control <= ALU_AND;
-                                alu_src2    <= READ_DATA_2; -- Read Data 2
+                                alu_src2    <= READ_DATA_2_SRC2; -- Read Data 2
                             WHEN OTHERS =>
                                 nop <= '1';
                         END CASE;
@@ -157,13 +158,13 @@ BEGIN
                                 mem_re      <= '1';
                                 mem_to_reg  <= '1';
                                 reg_we      <= '1';
-                                flags_en  <= '0';
+                                flags_en    <= '0';
                             WHEN "011" => -- STD Rsrc1, offset(Rsrc2)
                                 alu_control <= ALU_ADD;
-                                alu_src1    <= READ_DATA_2;    -- Read Data 1
-                                alu_src2    <= READ_IMMEDIATE; -- Read Data 2
+                                alu_src1    <= READ_DATA_2_SRC1; -- Read Data 1
+                                alu_src2    <= READ_IMMEDIATE;   -- Read Data 2
                                 mem_we      <= '1';
-                                flags_en  <= '0';
+                                flags_en    <= '0';
                             WHEN OTHERS =>
                                 nop <= '1';
                         END CASE;

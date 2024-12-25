@@ -69,9 +69,10 @@ ARCHITECTURE Behavioral OF tb_ControlUnit IS
     CONSTANT ALU_INC        : STD_LOGIC_VECTOR(2 DOWNTO 0) := "011";
     CONSTANT ALU_SUB        : STD_LOGIC_VECTOR(2 DOWNTO 0) := "100";
     CONSTANT ALU_NOP        : STD_LOGIC_VECTOR(2 DOWNTO 0) := "101";
-    CONSTANT READ_DATA_1    : STD_LOGIC                    := '1';
-    CONSTANT READ_DATA_2    : STD_LOGIC                    := '1';
-    CONSTANT READ_IMMEDIATE : STD_LOGIC                    := '0';
+    CONSTANT READ_DATA_1      : STD_LOGIC                    := '1';
+    CONSTANT READ_DATA_2_SRC1 : STD_LOGIC                    := '0';
+    CONSTANT READ_DATA_2_SRC2 : STD_LOGIC                    := '1';
+    CONSTANT READ_IMMEDIATE   : STD_LOGIC                    := '0';
 
     FUNCTION to_string(slv : STD_LOGIC_VECTOR) RETURN STRING IS
         VARIABLE result        : STRING(1 TO slv'LENGTH);
@@ -187,7 +188,7 @@ BEGIN
         WAIT FOR 10 ns;
         passed_tests := passed_tests + check_and_report(
             (alu_control & alu_src1 & alu_src2 & reg_we),
-            (ALU_ADD & READ_DATA_1 & READ_DATA_2 & '1'),
+            (ALU_ADD & READ_DATA_1 & READ_DATA_2_SRC2 & '1'),
             "Test 4 failed: ADD operation");
 
         -- Test 5: SUB operation
@@ -196,7 +197,7 @@ BEGIN
         WAIT FOR 10 ns;
         passed_tests := passed_tests + check_and_report(
             (alu_control & alu_src1 & alu_src2 & reg_we),
-            (ALU_SUB & READ_DATA_1 & READ_DATA_2 & '1'),
+            (ALU_SUB & READ_DATA_1 & READ_DATA_2_SRC2 & '1'),
             "Test 5 failed: SUB operation");
 
         -- Test 6: AND operation
@@ -205,7 +206,7 @@ BEGIN
         WAIT FOR 10 ns;
         passed_tests := passed_tests + check_and_report(
             (alu_control & alu_src1 & alu_src2 & reg_we),
-            (ALU_AND & READ_DATA_1 & READ_DATA_2 & '1'),
+            (ALU_AND & READ_DATA_1 & READ_DATA_2_SRC2 & '1'),
             "Test 6 failed: AND operation");
 
         -- Test I-Type instruction
@@ -251,7 +252,7 @@ BEGIN
         WAIT FOR 10 ns;
         passed_tests := passed_tests + check_and_report(
             (alu_control & alu_src1 & alu_src2 & reg_we & mem_we & prev_op & nop & flags_en),
-            (ALU_ADD & READ_DATA_2 & READ_IMMEDIATE & '0' & '1' & '1' & '1' & '0'),
+            (ALU_ADD & READ_DATA_2_SRC1 & READ_IMMEDIATE & '0' & '1' & '1' & '1' & '0'),
             "Test 11 failed: STD operation");
         WAIT FOR 10 ns; -- Wait for the previous operation to complete
 
