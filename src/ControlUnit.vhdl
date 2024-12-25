@@ -46,8 +46,8 @@ ARCHITECTURE Behavioral OF ControlUnit IS
     CONSTANT ALU_SUB        : STD_LOGIC_VECTOR(2 DOWNTO 0) := "100";
     CONSTANT ALU_NOP        : STD_LOGIC_VECTOR(2 DOWNTO 0) := "101";
     CONSTANT READ_DATA_1    : STD_LOGIC                    := '1';
-    CONSTANT READ_DATA_2    : STD_LOGIC                    := '0';
-    CONSTANT READ_IMMEDIATE : STD_LOGIC                    := '1';
+    CONSTANT READ_DATA_2    : STD_LOGIC                    := '1';
+    CONSTANT READ_IMMEDIATE : STD_LOGIC                    := '0';
 BEGIN
     PROCESS (rst, clk, opcode, func_code, index_in)
     BEGIN

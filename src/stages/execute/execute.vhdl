@@ -1,220 +1,148 @@
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.STD_LOGIC_ARITH.ALL;
-use IEEE.STD_LOGIC_UNSIGNED.ALL;
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
+USE IEEE.STD_LOGIC_ARITH.ALL;
+USE IEEE.STD_LOGIC_UNSIGNED.ALL;
 
-entity Execute is
-    Port (
-        clk         : in  STD_LOGIC;
-        rst       : in  STD_LOGIC;
-        read_data1    : in  STD_LOGIC_VECTOR(15 downto 0);
-        read_data2    : in  STD_LOGIC_VECTOR(15 downto 0);
-        rdst_in        : in std_logic_vector(2 downto 0);
-        pc_in        : in std_logic_vector(15 downto 0);
-        res_forward           : in std_logic_vector(15 downto 0);
-        wb_forward           : in std_logic_vector(15 downto 0);
-        immediate   : in  STD_LOGIC_VECTOR(15 downto 0);
-        input_port : in  STD_LOGIC_VECTOR(15 downto 0);
-        alu_sel     : in  STD_LOGIC_VECTOR(2 downto 0);
-        JN, JZ, JC : in std_logic;
-      
-        RTI :in std_logic;
-        flags_en : in std_logic;
-
-        control_unit_sel_1 : in  STD_LOGIC;
-        foward_unit_sel_1 : in  STD_LOGIC_VECTOR(1 downto 0);
-        control_unit_sel_2 : in  STD_LOGIC;
-        foward_unit_sel_2 : in  STD_LOGIC_VECTOR(1 downto 0);
-        input_port_enable : in std_logic;
-        output_port_enable : in std_logic;
-        branch_detect : out std_logic;
-        rdst_out : out std_logic_vector(2 downto 0);
-        final_res, rsrc1_out, pc_out :out std_logic_vector(15 downto 0)
+ENTITY Execute IS
+    PORT (
+        clk                           : IN STD_LOGIC;
+        rst                           : IN STD_LOGIC;
+        read_data1                    : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+        read_data2                    : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+        res_forward                   : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+        wb_forward                    : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+        immediate                     : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+        input_port                    : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+        alu_op                        : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+        jn, jz, jc                    : IN STD_LOGIC;
+        rti                           : IN STD_LOGIC;
+        int                           : IN STD_LOGIC;
+        flags_en                      : IN STD_LOGIC;
+        alu_src1                      : IN STD_LOGIC;
+        foward_unit_sel_1             : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+        alu_src2                      : IN STD_LOGIC;
+        foward_unit_sel_2             : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+        input_port_enable             : IN STD_LOGIC;
+        output_port_enable            : IN STD_LOGIC;
+        branch_detect                 : OUT STD_LOGIC;
+        final_res, rsrc1_out, alu_res : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
+        output_port                   : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
     );
-end Execute;
+END Execute;
 
-architecture Behavioral of Execute is
+ARCHITECTURE Behavioral OF Execute IS
+    SIGNAL branch_signal                                                : STD_LOGIC;
+    SIGNAL alu_input1, alu_input2, alu_result, final_result             : STD_LOGIC_VECTOR(15 DOWNTO 0);
+    SIGNAL flags_CCR, flags_CCR_pre, temp_flags_comb1, temp_flags_comb2 : STD_LOGIC_VECTOR (2 DOWNTO 0);
+    SIGNAL out_port                                                     : STD_LOGIC_VECTOR(15 DOWNTO 0);
 
-    component Special_Mux is
-        Port (
-            forword_unit_sel: in STD_LOGIC_VECTOR(0 to 1);
-            ctrl_unit_sel : in STD_LOGIC;
-            result : in STD_LOGIC_VECTOR(15 downto 0);
-            write_back : in STD_LOGIC_VECTOR(15 downto 0);
-            input1 : in STD_LOGIC_VECTOR(15 downto 0);
-            input2 : in STD_LOGIC_VECTOR(15 downto 0);
-            outp : out STD_LOGIC_VECTOR(15 downto 0)
+BEGIN
+
+    U1 : ENTITY work.ALUInputSelector(Behavioral)
+        PORT MAP(
+            forword_unit_sel => foward_unit_sel_1,
+            ctrl_unit_sel    => alu_src1,
+            result           => res_forward,
+            write_back       => wb_forward,
+            input1           => read_data2,
+            input2           => read_data1,
+            outp             => alu_input1
         );
-    end component;
 
-    component ALU is
-        Port (
-            A                   : in  STD_LOGIC_VECTOR(15 downto 0);
-            B                   : in  STD_LOGIC_VECTOR(15 downto 0);
-            Sel                 : in  STD_LOGIC_VECTOR(2 downto 0);
-            CF_in, NF_in, ZF_in : in  STD_LOGIC;
-            Result              : out STD_LOGIC_VECTOR(15 downto 0);
-            CF, NF, ZF          : out STD_LOGIC
+    U2 : ENTITY work.ALUInputSelector(Behavioral)
+        PORT MAP(
+            forword_unit_sel => foward_unit_sel_2,
+            ctrl_unit_sel    => alu_src2,
+            result           => res_forward,
+            write_back       => wb_forward,
+            input1           => immediate,
+            input2           => read_data2,
+            outp             => alu_input2
         );
-    end component;
 
-    component MuxN is
-        generic (
-            W : INTEGER := 16
+    alu_instance : ENTITY work.ALU(Behavioral)
+        PORT MAP(
+            a        => alu_input1,
+            b        => alu_input2,
+            op       => alu_op,
+            flags_en => flags_en,
+            cf_in    => flags_CCR(2),
+            nf_in    => flags_CCR(1),
+            zf_in    => flags_CCR(0),
+            result   => alu_result,
+            cf       => flags_CCR(2),
+            nf       => flags_CCR(1),
+            zf       => flags_CCR(0)
         );
-        port (
-            a   : in STD_LOGIC_VECTOR(W - 1 downto 0);
-            b   : in STD_LOGIC_VECTOR(W - 1 downto 0);
-            sel : in STD_LOGIC;
-            y   : out STD_LOGIC_VECTOR(W - 1 downto 0)
+
+    -- FIXME: This won't work
+    U3 : ENTITY work.MuxN(Behavioral)
+        GENERIC MAP(
+            W => 3
+        )
+        PORT MAP(
+            a   => flags_CCR,
+            b   => flags_CCR_pre,
+            sel => rti,
+            y   => flags_CCR
         );
-    end component;
 
-
-    component Branch_Detector is
-        Port (
-            NF: in std_logic;
-            JN: in std_logic;
-            CF: in std_logic;
-            JC: in std_logic;
-            ZF: in std_logic;
-            JZ: in std_logic;
-            branch_out: out std_logic 
+    branch_detector_inst : ENTITY work.BranchDetector(Behavioral)
+        PORT MAP(
+            nf         => flags_CCR(1),
+            jn         => jn,
+            cf         => flags_CCR(2),
+            jc         => jc,
+            zf         => flags_CCR(0),
+            jz         => jz,
+            branch_out => branch_signal
         );
-    end component;
+    flags_CCR(2) <= '0' WHEN jc = '1' ELSE
+    flags_CCR(2);
+    flags_CCR(1) <= '0' WHEN jn = '1' ELSE
+    flags_CCR(1);
+    flags_CCR(0) <= '0' WHEN jz = '1' ELSE
+    flags_CCR(0);
 
-    component outout_port is
-        Port (
-            clk   : in  STD_LOGIC;
-            rst   : in  STD_LOGIC;
-            input1 : in  STD_LOGIC_vector (15 downto 0);
-            output1 : out STD_LOGIC_vector (15 downto 0)
+    -- FIXME: This won't work
+    U4 : ENTITY work.MuxN(Behavioral)
+        GENERIC MAP(
+            W => 3
+        )
+        PORT MAP(
+            a   => flags_CCR,
+            b   => flags_CCR_pre,
+            sel => int,
+            y   => flags_CCR_pre
         );
-    end component;
 
-    signal branch_signal : std_logic;
+    U5 : ENTITY work.MuxN(Behavioral)
+        GENERIC MAP(
+            W => 16
+        )
+        PORT MAP(
+            a   => alu_result,
+            b   => input_port,
+            sel => input_port_enable,
+            y   => final_result
+        );
 
-    signal mux_out1, mux_out2, ALU_res, temp_final_res, output_port1 : STD_LOGIC_VECTOR(15 downto 0);
+    U6 : ENTITY work.OutPort(Behavioral)
+        PORT MAP(
+            clk     => clk,
+            rst     => rst,
+            en      => output_port_enable,
+            input1  => alu_result,
+            output1 => out_port
+        );
 
-    -- 0 -> z , 1 -> N, 2 -> C
+    flags_CCR <= (OTHERS => '0') WHEN rst = '0' ELSE
+        flags_CCR;
+    flags_CCR_pre <= (OTHERS => '0') WHEN rst = '0' ELSE
+        flags_CCR_pre;
 
-    signal flags_CCR, flags_CCR_pre, temp_flags_comb1, temp_flags_comb2 : std_logic_vector ( 2 downto 0);
-    
-    begin
-
-        U1: Special_Mux
-            Port map (
-                forword_unit_sel => foward_unit_sel_1,
-                ctrl_unit_sel => control_unit_sel_1,
-                result => res_forward,
-                write_back => wb_forward,
-                input1 => read_data1 ,
-                input2 => read_data2,
-                outp => mux_out1
-            );
-
-        U2: Special_Mux
-            Port map (
-                forword_unit_sel => foward_unit_sel_2,
-                ctrl_unit_sel => control_unit_sel_2,
-                result => res_forward,
-                write_back => wb_forward,
-                input1 => read_data2,
-                input2 => immediate,
-                outp => mux_out2
-            );
-
-        U3: ALU
-            Port map (
-                A => mux_out1,
-                B => mux_out2,
-                Sel => ALU_sel,
-                CF_in =>  flags_CCR(2),
-                NF_in => flags_CCR(1),
-                ZF_in =>  flags_CCR(0),
-                Result => ALU_res,
-                CF => flags_CCR(2),
-                NF => flags_CCR(1),
-                ZF => flags_CCR(0)
-            );
-
-
-        U4: MuxN
-            generic map (
-                W => 3
-            )
-            port map (
-                a => flags_CCR,
-                b => flags_CCR_pre,
-                sel => RTI,
-                y => flags_CCR
-                );
-
-       
-                U8: Branch_Detector
-                Port map (
-                    NF => flags_CCR(1),
-                    JN => JN,
-                    CF => flags_CCR(2),
-                    JC => JC,
-                    ZF => flags_CCR(0),
-                    JZ => JZ,
-                    branch_out => branch_signal
-                );
-
-
-                flags_CCR(2) <= '0' when JC = '1' else flags_CCR(2);
-                flags_CCR(1) <= '0' when JN = '1' else flags_CCR(1);
-                flags_CCR(0) <= '0' when JZ = '1' else flags_CCR(0);
-
-             
-
-        U6: MuxN
-            generic map (
-                W => 3
-            )
-            port map (
-                a => flags_CCR,
-                b => flags_CCR_pre,
-                sel => RTI,
-                y => flags_CCR_pre
-            );
-        
-
-       
-
-        U10:   MuxN
-            generic map (
-                W => 16
-            )
-            port map (
-                a => ALU_res,
-                b => input_port,
-                sel => input_port_enable,
-                y => temp_final_res
-            );
-
-        U11:   outout_port 
-            Port map (
-                clk => clk,
-                rst => rst,
-                input1 => temp_final_res,
-                output1 => output_port1
-            );
-
-            flags_CCR <= (others => '0') when rst = '1' else flags_CCR;
-            flags_CCR_pre <= (others => '0') when rst = '1' else flags_CCR_pre;
-
-
-        branch_detect <= branch_signal;
-        final_res <= temp_final_res;
-        rsrc1_out <= read_data1;
-        rdst_out <= rdst_in;
-        pc_out <= pc_in;
-
-        
-
-        
-
-
-    end Behavioral;
+    alu_res       <= alu_result;
+    output_port   <= out_port;
+    branch_detect <= branch_signal;
+    final_res     <= final_result;
+END Behavioral;

@@ -4,76 +4,31 @@ USE IEEE.NUMERIC_STD.ALL;
 
 ENTITY ALU IS
     PORT (
-        A                   : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
-        B                   : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
-        Sel                 : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
-        CF_in, NF_in, ZF_in : IN STD_LOGIC;
-        Result              : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
-        CF, NF, ZF          : OUT STD_LOGIC
+        a                   : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+        b                   : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+        op                  : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+        flags_en            : IN STD_LOGIC;
+        cf_in, nf_in, zf_in : IN STD_LOGIC;
+        result              : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
+        cf, nf, zf          : OUT STD_LOGIC
     );
 END ALU;
 
 ARCHITECTURE Behavioral OF ALU IS
-COMPONENT AndN
-    GENERIC (
-        W : INTEGER := 16
-    );
-    PORT (
-        a : IN  STD_LOGIC_VECTOR(W-1 DOWNTO 0);
-        b : IN  STD_LOGIC_VECTOR(W-1 DOWNTO 0);
-        y : OUT STD_LOGIC_VECTOR(W-1 DOWNTO 0)
-    );
-END COMPONENT;
+    CONSTANT ALU_AND : STD_LOGIC_VECTOR(2 DOWNTO 0) := "000";
+    CONSTANT ALU_NOT : STD_LOGIC_VECTOR(2 DOWNTO 0) := "001";
+    CONSTANT ALU_ADD : STD_LOGIC_VECTOR(2 DOWNTO 0) := "010";
+    CONSTANT ALU_INC : STD_LOGIC_VECTOR(2 DOWNTO 0) := "011";
+    CONSTANT ALU_SUB : STD_LOGIC_VECTOR(2 DOWNTO 0) := "100";
+    CONSTANT ALU_NOP : STD_LOGIC_VECTOR(2 DOWNTO 0) := "101";
 
-COMPONENT NotN
-    GENERIC (
-        W : INTEGER := 16
-    );
-    PORT (
-        a : IN  STD_LOGIC_VECTOR(W-1 DOWNTO 0);
-        y : OUT STD_LOGIC_VECTOR(W-1 DOWNTO 0)
-    );
-END COMPONENT;
-
-COMPONENT AddN
-    GENERIC (
-        W : INTEGER := 16
-    );
-    PORT (
-        a  : IN  STD_LOGIC_VECTOR(W-1 DOWNTO 0);
-        b  : IN  STD_LOGIC_VECTOR(W-1 DOWNTO 0);
-        y  : OUT STD_LOGIC_VECTOR(W-1 DOWNTO 0);
-        cf : OUT STD_LOGIC
-    );
-END COMPONENT;
-
-COMPONENT IncN
-    GENERIC (
-        W : INTEGER := 16
-    );
-    PORT (
-        a  : IN  STD_LOGIC_VECTOR(W-1 DOWNTO 0);
-        y  : OUT STD_LOGIC_VECTOR(W-1 DOWNTO 0);
-        cf : OUT STD_LOGIC
-    );
-END COMPONENT;
-
-COMPONENT SubN
-    GENERIC (
-        W : INTEGER := 16
-    );
-    PORT (
-        a  : IN  STD_LOGIC_VECTOR(W-1 DOWNTO 0);
-        b  : IN  STD_LOGIC_VECTOR(W-1 DOWNTO 0);
-        y  : OUT STD_LOGIC_VECTOR(W-1 DOWNTO 0);
-        nf : OUT STD_LOGIC
-    );
-END COMPONENT;
-    SIGNAL res, result_and, result_not, result_add, result_inc, result_sub : STD_LOGIC_VECTOR(15 DOWNTO 0);
-    SIGNAL carry_add, carry_inc, neg_sub                                   : STD_LOGIC;
+    SIGNAL result_and, result_not, result_add, result_inc, result_sub      : STD_LOGIC_VECTOR(15 DOWNTO 0);
+    SIGNAL carry_add, carry_inc, carry_sub                                 : STD_LOGIC;
+    SIGNAL mux_output1, mux_output2, mux_output3, mux_output4, res : STD_LOGIC_VECTOR(15 DOWNTO 0);
+    SIGNAL zero_flag                                                       : STD_LOGIC;
 BEGIN
 
-    uut_and16 :  AndN
+    uut_and16 : ENTITY work.AndN(Behavioral)
         GENERIC MAP(
             W => 16
         )
@@ -84,7 +39,7 @@ BEGIN
         );
 
     -- Instantiate Not16
-    uut_Not16 : NotN
+    uut_Not16 : ENTITY work.NotN(Behavioral)
         GENERIC MAP(
             W => 16
         )
@@ -94,7 +49,7 @@ BEGIN
         );
 
     -- Instantiate add16
-    uut_add16 :  AddN
+    uut_add16 : ENTITY work.AddN(Behavioral)
         GENERIC MAP(
             W => 16
         )
@@ -106,7 +61,7 @@ BEGIN
         );
 
     -- Instantiate inc16
-    uut_inc16 :  IncN
+    uut_inc16 : ENTITY work.IncN(Behavioral)
         GENERIC MAP(
             W => 16
         )
@@ -116,39 +71,90 @@ BEGIN
             cf => carry_inc
         );
 
-    uut_sub16 : SubN
+    uut_sub16 : ENTITY work.SubN(Behavioral)
         GENERIC MAP(
             W => 16
         )
         PORT MAP(
-            a  => A,
-            b  => B,
-            y  => result_sub,
-            nf => neg_sub
+            a => A,
+            b => B,
+            y => result_sub,
+            cf => carry_sub
         );
 
-    -- WHY AREN'T YOU USING MUX HERE?
-    res <= result_and WHEN Sel = "000" ELSE
-        result_not WHEN Sel = "001" ELSE
-        result_add WHEN Sel = "010" ELSE
-        result_inc WHEN Sel = "011" ELSE
-        result_sub WHEN Sel = "100" ELSE
-        A WHEN Sel = "101" ELSE
-        (OTHERS => '0');
+    -- Choose between "xx0" or "xx1"
+    U1 : ENTITY work.MuxN(Behavioral)
+        GENERIC MAP(
+            W => 16
+        )
+        PORT MAP(
+            a   => result_and,
+            b   => result_not,
+            sel => op(0),
+            y   => mux_output1
+        );
 
-    CF <= 
-        carry_add WHEN (Sel = "010") ELSE
-        carry_inc WHEN (Sel = "011") ELSE
-        CF_in;
+    U2 : ENTITY work.MuxN(Behavioral)
+        GENERIC MAP(
+            W => 16
+        )
+        PORT MAP(
+            a   => result_add,
+            b   => result_inc,
+            sel => op(0),
+            y   => mux_output2
+        );
 
-    NF <= 
-        neg_sub WHEN (Sel = "100") ELSE
-        NF_in;
+    U3 : ENTITY work.MuxN(Behavioral)
+        GENERIC MAP(
+            W => 16
+        )
+        PORT MAP(
+            a   => result_sub,
+            b   => a,
+            sel => op(0),
+            y   => mux_output3
+        );
 
-    ZF <=
-        '1' WHEN (res = "0000000000000000" ) ELSE
-        ZF_in;
+    -- Choose between "x0x" or "x1x"
+    U4 : ENTITY work.MuxN(Behavioral)
+        GENERIC MAP(
+            W => 16
+        )
+        PORT MAP(
+            a   => mux_output1,
+            b   => mux_output2,
+            sel => op(1),
+            y   => mux_output4
+        );
 
-    Result <= res;
+    -- Choose between "0xx" or "1xx"
+    U5 : ENTITY work.MuxN(Behavioral)
+        GENERIC MAP(
+            W => 16
+        )
+        PORT MAP(
+            a   => mux_output4,
+            b   => mux_output3,
+            sel => op(2),
+            y   => res
+        );
+
+    cf <= carry_add WHEN (op = ALU_ADD AND flags_en = '1') ELSE
+        carry_inc WHEN (op = ALU_INC AND flags_en = '1') ELSE
+        carry_sub WHEN (op = ALU_SUB AND flags_en = '1') ELSE
+        cf_in;
+
+    -- Negative flag gets the value of the most significant bit of the result
+    -- It is updated om all operations.
+    nf <= res(15) WHEN flags_en = '1' AND op /= ALU_NOP ELSE
+        nf_in;
+
+    zero_flag <= '1' WHEN (res = std_logic_vector(TO_UNSIGNED(0, res'LENGTH))) ELSE
+        '0';
+    zf <= zero_flag WHEN flags_en = '1' AND op /= ALU_NOP ELSE
+        zf_in;
+
+    result <= res;
 
 END Behavioral;

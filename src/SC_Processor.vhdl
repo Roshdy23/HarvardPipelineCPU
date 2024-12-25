@@ -35,14 +35,11 @@ ARCHITECTURE SC_Processor OF SC_Processor IS
     SIGNAL rdest_out           : STD_LOGIC_VECTOR(2 DOWNTO 0);
 
     -- Execute signals
-    SIGNAL ZF_CCR, CF_CCR, NF_CCR             : STD_LOGIC                     := '0';
-    SIGNAL ZF_Pre_CCR, CF_Pre_CCR, NF_Pre_CCR : STD_LOGIC                     := '0';
-    SIGNAL branch_detect                      : STD_LOGIC                     := '0';
+    SIGNAL ZF_CCR, CF_CCR, NF_CCR             : STD_LOGIC := '0';
+    SIGNAL ZF_Pre_CCR, CF_Pre_CCR, NF_Pre_CCR : STD_LOGIC := '0';
+    SIGNAL branch_detect                      : STD_LOGIC := '0';
     SIGNAL alu_res                            : STD_LOGIC_VECTOR(15 DOWNTO 0);
     SIGNAL execute_res                        : STD_LOGIC_VECTOR(15 DOWNTO 0);
-    SIGNAL rsrc1_out_from_execute             : STD_LOGIC_VECTOR(15 DOWNTO 0);
-    SIGNAL rdst_out_from_execute              : STD_LOGIC_VECTOR(2 DOWNTO 0);
-    SIGNAL next_pc_from_execute               : STD_LOGIC_VECTOR(15 DOWNTO 0);
 
     -- Hazard detection signals
     SIGNAL hazard         : STD_LOGIC                     := '0';
@@ -159,29 +156,26 @@ BEGIN
             rst                => rst,
             read_data1         => read_data1,
             read_data2         => read_data2,
-            rdst_in            => rdest_out,
-            pc_in              => next_pc_from_decode,
             res_forward        => res_forward,
             wb_forward         => wb_forward,
             immediate          => immediate,
             input_port         => in_data_from_decode,
-            alu_sel            => alu_control,
-            RTI                => RTI,
-            JZ                 => JZ,
-            JN                 => JN,
-            JC                 => JC,
+            alu_op             => alu_control,
+            rti                => rti,
+            int                => int,
+            jz                 => jz,
+            jn                 => jn,
+            jc                 => jc,
             flags_en           => flags_en,
-            control_unit_sel_1 => alu_src1,
+            alu_src1           => alu_src1,
             foward_unit_sel_1  => forward_sel_1,
-            control_unit_sel_2 => alu_src2,
+            alu_src2           => alu_src2,
             foward_unit_sel_2  => forward_sel_2,
             input_port_enable  => in_en,
             output_port_enable => out_en,
             branch_detect      => branch_detect,
             final_res          => execute_res,
-            rsrc1_out          => rsrc1_out_from_execute,
-            rdst_out           => rdst_out_from_execute,
-            pc_out             => next_pc_from_execute
+            alu_res            => alu_res
         );
 
     --------------------------------------------------------------------
@@ -215,9 +209,9 @@ BEGIN
             index      => index_out,
             int        => int,
             mem_data   => mem_data,
-            in_data    => rsrc1_out_from_execute,
+            in_data    => read_data1,
             wb_data    => write_data
         );
-    
+
     wb_data <= write_data;
 END SC_Processor;

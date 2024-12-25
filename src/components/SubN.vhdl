@@ -10,7 +10,7 @@ ENTITY SubN IS
         a  : IN STD_LOGIC_VECTOR(W - 1 DOWNTO 0);
         b  : IN STD_LOGIC_VECTOR(W - 1 DOWNTO 0);
         y  : OUT STD_LOGIC_VECTOR(W - 1 DOWNTO 0);
-        nf : OUT STD_LOGIC
+        cf : OUT STD_LOGIC
     );
 END SubN;
 
@@ -21,6 +21,6 @@ BEGIN
     BEGIN
         temp := SIGNED('0' & a) - SIGNED('0' & b);
         y  <= STD_LOGIC_VECTOR(temp(W - 1 DOWNTO 0));
-        nf <= temp(W);
+        cf <= temp(W);
     END PROCESS;
 END Behavioral;
