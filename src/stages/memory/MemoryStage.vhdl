@@ -29,7 +29,7 @@ ARCHITECTURE Behavioral OF MemoryStage IS
     SIGNAL data_in          : STD_LOGIC_VECTOR(15 DOWNTO 0);
     SIGNAL address          : STD_LOGIC_VECTOR(15 DOWNTO 0);
     SIGNAL unused           : STD_LOGIC_VECTOR(15 DOWNTO 0);
-    SIGNAL nf               : STD_LOGIC;
+    SIGNAL cf               : STD_LOGIC;
     SIGNAL read_or_write    : STD_LOGIC;
     SIGNAL we_and_re        : STD_LOGIC_VECTOR(1 DOWNTO 0);
     CONSTANT x0FFF          : STD_LOGIC_VECTOR(15 DOWNTO 0) := STD_LOGIC_VECTOR(to_unsigned(4095, 16));
@@ -90,7 +90,7 @@ BEGIN
             a  => x0FFF,
             b  => address,
             y  => unused,
-            nf => nf
+            cf => cf
         );
     ior : ENTITY work.OrN(Behavioral)
         GENERIC MAP(
@@ -102,7 +102,7 @@ BEGIN
         );
     iand : ENTITY work.And2(Behavioral)
         PORT MAP(
-            a => nf,
+            a => unused(15),
             b => read_or_write,
             y => memory_exception
         );
