@@ -29,7 +29,7 @@ entity HDU is
         flush_if_id : out STD_LOGIC;
         flush_id_ie : out STD_LOGIC;
         pc_enable : out STD_LOGIC;
-        pc : out STD_LOGIC_VECTOR(15 downto 0);
+        pc : out STD_LOGIC_VECTOR(15 downto 0)
     );
 end HDU;
 
